@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prime Hay Back Office</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: #f5f5f5;
+      color: #1c1f24;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .card {
+      background: white;
+      border: 1px solid #e3e6ea;
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .header {
+      background: white;
+      border-bottom: 1px solid #e3e6ea;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: -2rem -2rem 2rem;
+    }
+    .header h1 { margin: 0; font-size: 20px; font-weight: 500; }
+    button {
+      background: #8a5a2b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+    }
+    button:hover { background: #6d4820; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    input[type="text"], input[type="email"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e3e6ea;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e3e6ea;
+    }
+    th {
+      background: #f9f9f9;
+      font-weight: 500;
+      color: #5b6270;
+      font-size: 13px;
+    }
+    tr:hover { background: #fafafa; }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .section-header h2 { margin: 0; font-size: 18px; font-weight: 500; }
+    .hidden { display: none; }
+    .status {
+      margin-top: 1rem;
+      padding: 12px;
+      border-radius: 6px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      font-size: 13px;
+      display: none;
+    }
+    .login-box {
+      max-width: 400px;
+      margin: 4rem auto;
+      text-align: center;
+    }
+    .login-box h1 { font-size: 24px; margin-bottom: 0.5rem; }
+    .login-box .subtitle { color: #8a5a2b; margin-bottom: 2rem; font-size: 13px; }
+    .login-box form { display: flex; flex-direction: column; gap: 12px; }
+    .login-box label { text-align: left; font-size: 13px; font-weight: 500; display: block; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen">
+  <div class="login-box card">
+    <h1>Prime Hay</h1>
+    <div class="subtitle">Back Office</div>
+    <form onsubmit="handleLogin(event)">
+      <div>
+        <label>Email</label>
+        <input type="email" id="email" placeholder="marlot@primehayportugal.com" required>
+      </div>
+      <button type="submit">Send magic link</button>
+    </form>
+  </div>
+</div>
+
+<!-- Dashboard Screen -->
+<div id="dashboard-screen" class="hidden">
+  <div class="header">
+    <h1>Prime Hay Back Office</h1>
+    <button onclick="handleLogout()">Sign out</button>
+  </div>
+
+  <div class="container">
+    <div class="section-header">
+      <h2>Open pro forma invoices</h2>
+      <button id="mark-paid-btn" onclick="handleMarkPaid()" disabled>Mark 0 as paid</button>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 40px;"><input type="checkbox" id="select-all" onchange="toggleSelectAll()"></th>
+            <th>Invoice #</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="invoice-list">
+          <tr class="invoice-row">
+            <td><input type="checkbox" class="invoice-checkbox" onchange="updateMarkPaidBtn()"></td>
+            <td style="font-weight: 500;">PF-2026-0001</td>
+            <td>Customer A</td>
+            <td style="font-weight: 500;">€1,500.00</td>
+            <td>Jul 1, 2026</td>
+          </tr>
+          <tr class="invoice-row">
+            <td><input type="checkbox" class="invoice-checkbox" onchange="updateMarkPaidBtn()"></td>
+            <td style="font-weight: 500;">PF-2026-0002</td>
+            <td>Customer B</td>
+            <td style="font-weight: 500;">€2,500.00</td>
+            <td>Jul 2, 2026</td>
+          </tr>
+          <tr class="invoice-row">
+            <td><input type="checkbox" class="invoice-checkbox" onchange="updateMarkPaidBtn()"></td>
+            <td style="font-weight: 500;">PF-2026-0003</td>
+            <td>Customer C</td>
+            <td style="font-weight: 500;">€800.00</td>
+            <td>Jul 3, 2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="status" class="status">✓ Invoices marked as paid and converted in Moloni</div>
+  </div>
+</div>
+
+<script>
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  localStorage.setItem('userEmail', email);
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('dashboard-screen').classList.remove('hidden');
+}
+
+function handleLogout() {
+  localStorage.removeItem('userEmail');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('dashboard-screen').classList.add('hidden');
+  document.getElementById('email').value = '';
+}
+
+function toggleSelectAll() {
+  const checked = document.getElementById('select-all').checked;
+  document.querySelectorAll('.invoice-checkbox').forEach(cb => cb.checked = checked);
+  updateMarkPaidBtn();
+}
+
+function updateMarkPaidBtn() {
+  const checked = document.querySelectorAll('.invoice-checkbox:checked').length;
+  const btn = document.getElementById('mark-paid-btn');
+  btn.textContent = `Mark ${checked} as paid`;
+  btn.disabled = checked === 0;
+}
+
+function handleMarkPaid() {
+  const checked = document.querySelectorAll('.invoice-checkbox:checked').length;
+  if (checked > 0) {
+    const status = document.getElementById('status');
+    status.style.display = 'block';
+    document.querySelectorAll('.invoice-checkbox:checked').forEach(cb => {
+      cb.parentElement.parentElement.style.opacity = '0.5';
+    });
+    setTimeout(() => {
+      status.style.display = 'none';
+      document.querySelectorAll('.invoice-checkbox').forEach(cb => cb.checked = false);
+      document.getElementById('select-all').checked = false;
+      document.querySelectorAll('.invoice-row').forEach(row => row.style.opacity = '1');
+      updateMarkPaidBtn();
+    }, 2000);
+  }
+}
+
+window.addEventListener('load', () => {
+  const email = localStorage.getItem('userEmail');
+  if (email) {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('dashboard-screen').classList.remove('hidden');
+  }
+});
+</script>
+
+</body>
+</html>
