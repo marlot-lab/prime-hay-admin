@@ -219,6 +219,13 @@
         <option value="es">Español</option>
       </select>
 
+      <label for="profile">Google profile</label>
+      <select id="profile" onchange="onProfileChange()">
+        <option value="algarve">Prime Hay Portugal ALGARVE</option>
+        <option value="ribatejo">Prime Hay Portugal RIBATEJO</option>
+      </select>
+      <p class="hint">Each profile keeps its own rating, review count and review link. Most customers are in the Algarve, so that profile is the default.</p>
+
       <div class="row">
         <div>
           <label for="rating">Google rating</label>
@@ -329,9 +336,12 @@ const COPY = {
 // Seeded with the review already used in the Pavo Standard campaign; add the rest from Google.
 const DEFAULTS = {
   lang: 'pt',
-  rating: '5,0',
-  count: 11,
-  reviewLink: '',
+  profile: 'algarve',
+  // Per Google Maps, 28 Sep 2026
+  profiles: {
+    algarve: { name: 'Algarve', rating: '5,0', count: 9, reviewLink: '' },
+    ribatejo: { name: 'Ribatejo', rating: '5,0', count: 3, reviewLink: '' },
+  },
   reviews: [
     { name: 'Maria José Ramos', stars: 5, text: 'Adoram! Não saem de junto da rede onde é colocado o feno.' },
   ],
@@ -342,16 +352,24 @@ let state = load();
 function load() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved && Array.isArray(saved.reviews)) return { ...DEFAULTS, ...saved };
+    if (saved && Array.isArray(saved.reviews)) {
+      const merged = { ...structuredClone(DEFAULTS), ...saved };
+      if (!saved.profiles || !merged.profiles[merged.profile]) {
+        merged.profiles = structuredClone(DEFAULTS.profiles);
+        merged.profile = DEFAULTS.profile;
+      }
+      return merged;
+    }
   } catch (e) {}
   return structuredClone(DEFAULTS);
 }
 
 function save() {
   state.lang = document.getElementById('lang').value;
-  state.rating = document.getElementById('rating').value;
-  state.count = document.getElementById('count').value;
-  state.reviewLink = document.getElementById('review-link').value.trim();
+  const prof = state.profiles[state.profile];
+  prof.rating = document.getElementById('rating').value;
+  prof.count = document.getElementById('count').value;
+  prof.reviewLink = document.getElementById('review-link').value.trim();
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
 }
 
@@ -365,11 +383,21 @@ function resetDefaults() {
 
 function onLangChange() { save(); render(); }
 
+function onProfileChange() {
+  state.profile = document.getElementById('profile').value;
+  fillForm();
+  save();
+  render();
+}
+
+function profile() { return state.profiles[state.profile]; }
+
 function fillForm() {
   document.getElementById('lang').value = state.lang;
-  document.getElementById('rating').value = state.rating;
-  document.getElementById('count').value = state.count;
-  document.getElementById('review-link').value = state.reviewLink;
+  document.getElementById('profile').value = state.profile;
+  document.getElementById('rating').value = profile().rating;
+  document.getElementById('count').value = profile().count;
+  document.getElementById('review-link').value = profile().reviewLink;
   renderReviewList();
 }
 
@@ -435,9 +463,9 @@ function buildIntro(t) {
   el.innerHTML = `
     <div class="inner">
       <div class="kicker">${esc(t.introKicker)}</div>
-      <div class="score">${esc(state.rating || '5,0')}</div>
+      <div class="score">${esc(profile().rating || '5,0')}</div>
       <div class="score-stars">★★★★★</div>
-      <div class="count">${esc(t.reviews(state.count || ''))}</div>
+      <div class="count">${esc(t.reviews(profile().count || ''))}</div>
       <div class="headline">${esc(t.introHeadline)}</div>
       <div class="sub">${esc(t.introSub)}</div>
     </div>
@@ -490,7 +518,7 @@ function buildCta(t) {
       <div class="headline">${esc(t.ctaHeadline)}</div>
       <div class="sub">${esc(t.ctaSub)}</div>
       <div class="qr-card">
-        ${state.reviewLink ? `<div class="qr">${qrSvg(state.reviewLink)}</div>` : `<div class="qr-empty">${esc(t.noLink)}</div>`}
+        ${profile().reviewLink ? `<div class="qr">${qrSvg(profile().reviewLink)}</div>` : `<div class="qr-empty">${esc(t.noLink)}</div>`}
         <ol class="steps">${t.steps.map((s, i) => `<li><b>${i + 1}</b>${esc(s)}</li>`).join('')}</ol>
       </div>
       <div class="link-zone">${esc(t.linkZone)}</div>
@@ -583,7 +611,7 @@ async function toPng(story) {
 }
 
 function fileName(i) {
-  return `prime-hay-story-${state.lang}-${String(i + 1).padStart(2, '0')}.png`;
+  return `prime-hay-story-${state.profile}-${state.lang}-${String(i + 1).padStart(2, '0')}.png`;
 }
 
 function triggerDownload(url, name) {
