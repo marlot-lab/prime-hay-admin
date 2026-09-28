@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prime Hay Review Stories</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Open+Sans:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
   <style>
@@ -69,13 +69,17 @@
       flex-wrap: wrap;
     }
     .section-header h2 { margin: 0; font-size: 18px; font-weight: 500; }
-    .layout { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
+    .layout { display: grid; grid-template-columns: 380px 1fr; gap: 2rem; align-items: start; }
     @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .review-item { border-top: 1px solid #e3e6ea; padding-top: 12px; margin-top: 4px; }
     .review-item .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .review-item .top span { font-size: 12px; color: #5b6270; font-weight: 500; }
     .review-item button { padding: 4px 10px; font-size: 12px; }
+    .photo-field { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .photo-field .thumb { width: 44px; height: 44px; border-radius: 6px; background: #f0ede6 center/cover no-repeat; border: 1px solid #e3e6ea; flex: none; }
+    .photo-field input[type="file"] { font-size: 12px; flex: 1; min-width: 0; }
+    .photo-field button { padding: 4px 10px; font-size: 12px; }
     .status {
       margin-top: 1rem;
       padding: 12px;
@@ -98,99 +102,79 @@
     .preview .meta span { font-size: 12px; color: #5b6270; }
     .preview .meta button { padding: 6px 12px; font-size: 12px; }
 
-    /* ---------- Story design (Prime Hay brand) ---------- */
+    /* ---------- Story design, per the Prime Hay brand guidelines ----------
+       Headlines: Cormorant Garamond. Body: Open Sans (light italic for quotes).
+       Colours: Phthalo Green, Aztec Gold, Lotion, Onyx Black. */
     .story {
-      --forest: #113602;
-      --gold: #D8C081;
-      --gold-deep: #BC993F;
-      --cream: #F4F1EA;
-      --paper: #FBFAF6;
-      --sage: #6B8A71;
-      --ink: #2B2B2B;
-      --muted: #5F5F58;
+      --green: #113602;
+      --gold: #BC993F;
+      --gold-soft: #DCC68F;
+      --lotion: #FFFCF8;
+      --onyx: #383737;
       width: 1080px; height: 1920px; position: relative; overflow: hidden;
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-      background: var(--cream); color: var(--forest);
+      font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: var(--lotion); color: var(--green);
     }
-    .story .mont { font-family: Montserrat, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
-    .story .stars { color: var(--gold-deep); letter-spacing: .08em; line-height: 1; }
-    .story .pill {
-      display: inline-block; border-radius: 999px; padding: 18px 34px;
-      font-family: Montserrat, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: .12em;
-      text-transform: uppercase; white-space: nowrap;
+    .story .serif { font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif; }
+    .story .logo { position: absolute; left: 50%; transform: translateX(-50%); display: block; }
+    /* A thin double gold frame, like a thank-you card */
+    .story .frame-line { position: absolute; inset: 44px; border: 2px solid var(--gold); border-radius: 6px; pointer-events: none; }
+    .story .frame-line::after { content: ""; position: absolute; inset: 12px; border: 1px solid var(--gold); border-radius: 3px; opacity: .55; }
+    .story .col {
+      text-wrap: balance;
+      position: absolute; left: 110px; right: 110px; display: flex; flex-direction: column; align-items: center; text-align: center;
     }
-    .story .wordmark {
-      white-space: nowrap;
-      font-family: Montserrat, sans-serif; font-weight: 900; font-size: 44px; letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-    /* Signature element: stacked bands like a cut hay bale */
-    .story .bands { position: absolute; left: 0; right: 0; display: flex; flex-direction: column; }
-    .story .bands i { display: block; }
+    .story .kicker { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-weight: 600; font-size: 54px; color: var(--gold); }
+    .story .rule { width: 120px; height: 2px; background: var(--gold); margin: 34px auto; }
+    .story .stars { color: var(--gold); letter-spacing: .12em; line-height: 1; }
+    .story .signature { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-weight: 600; font-size: 50px; color: var(--gold); }
+    .story .photo { background: center/cover no-repeat; flex: none; }
 
-    /* Top bar shared by review + CTA stories (sits below IG's progress bar / avatar) */
-    .story .topbar {
-      position: absolute; top: 0; left: 0; right: 0; height: 330px; background: var(--forest);
-      display: flex; align-items: flex-end; justify-content: space-between; padding: 0 80px 56px;
-      color: var(--paper);
-    }
-
-    /* 1. Rating intro */
-    .s-intro { background: var(--forest); color: var(--paper); }
-    .s-intro .inner { position: absolute; top: 300px; left: 80px; right: 80px; }
-    .s-intro .kicker { color: var(--gold); font-family: Montserrat, sans-serif; font-weight: 800; font-size: 34px; letter-spacing: .2em; text-transform: uppercase; }
-    .s-intro .score { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 400px; line-height: .9; letter-spacing: -.04em; margin-top: 40px; color: var(--paper); }
-    .s-intro .score-stars { font-size: 96px; margin-top: 20px; color: var(--gold); letter-spacing: .1em; }
-    .s-intro .count { font-size: 38px; margin-top: 30px; color: var(--gold); font-weight: 600; }
-    .s-intro .headline { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 96px; line-height: 1.02; letter-spacing: -.025em; margin-top: 90px; }
-    .s-intro .sub { font-size: 40px; line-height: 1.4; margin-top: 28px; color: rgba(251,250,246,.78); max-width: 820px; }
-    .s-intro .bands { bottom: 0; }
+    /* 1. Thank-you intro */
+    .s-intro { background: var(--green); color: var(--lotion); }
+    .s-intro .col { top: 560px; bottom: 230px; justify-content: space-between; }
+    .s-intro .headline { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; font-size: 92px; line-height: 1.04; letter-spacing: -.01em; }
+    .s-intro .sub { font-weight: 300; font-size: 40px; line-height: 1.45; color: rgba(255,252,248,.82); margin-top: 30px; }
+    .s-intro .visual { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+    .s-intro .arch { width: 500px; height: 430px; border-radius: 280px 280px 16px 16px; border: 3px solid var(--gold); }
+    .s-intro .score { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; font-size: 260px; line-height: 1; color: var(--lotion); font-variant-numeric: lining-nums; }
+    .s-intro .score-row { display: flex; align-items: center; gap: 24px; font-size: 38px; color: var(--gold-soft); font-weight: 400; }
+    .s-intro .score-row .stars { font-size: 52px; }
 
     /* 2. Review */
-    .s-review .quote-mark {
-      position: absolute; top: 330px; left: 50px; font-family: Montserrat, sans-serif; font-weight: 900;
-      font-size: 560px; line-height: 1; color: var(--gold); opacity: .55;
-    }
-    .s-review .body { position: absolute; top: 520px; left: 80px; right: 80px; height: 820px; display: flex; flex-direction: column; justify-content: center; }
-    .s-review .review-stars { font-size: 84px; margin-bottom: 44px; }
-    .s-review .quote { font-family: Montserrat, sans-serif; font-weight: 800; line-height: 1.18; letter-spacing: -.015em; color: var(--forest); }
-    .s-review .who { position: absolute; left: 80px; right: 80px; top: 1380px; display: flex; align-items: center; gap: 30px; }
-    .s-review .avatar {
-      width: 120px; height: 120px; border-radius: 50%; background: var(--forest); color: var(--gold);
-      display: flex; align-items: center; justify-content: center; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 52px; flex: none;
-    }
-    .s-review .name { font-family: Montserrat, sans-serif; font-weight: 800; font-size: 44px; color: var(--forest); }
-    .s-review .role { font-size: 32px; color: var(--muted); margin-top: 6px; }
-    .s-review .bands { bottom: 0; }
-    .s-review .counter { position: absolute; right: 80px; bottom: 120px; font-family: Montserrat, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: .15em; color: var(--forest); background: var(--gold); padding: 12px 24px; border-radius: 999px; }
+    .s-review .col { top: 430px; bottom: 250px; justify-content: space-between; }
+    .s-review .qmark { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 700; font-size: 260px; line-height: .6; color: var(--gold); height: 110px; }
+    .s-review .qbox { flex: 1; min-height: 0; width: 100%; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px 0; }
+    .s-review .quote { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-weight: 600; line-height: 1.14; color: var(--green); }
+    .s-review .translated { font-size: 26px; font-style: italic; font-weight: 300; color: var(--onyx); opacity: .7; margin-top: 28px; }
+    .s-review .who { display: flex; align-items: center; gap: 28px; margin: 30px 0 40px; }
+    .s-review .avatar { width: 128px; height: 128px; border-radius: 50%; border: 3px solid var(--gold); background: var(--green) center/cover no-repeat; color: var(--gold-soft); display: flex; align-items: center; justify-content: center; font-family: "Cormorant Garamond", serif; font-weight: 700; font-size: 56px; flex: none; }
+    .s-review .name { font-weight: 600; font-size: 40px; color: var(--green); text-align: left; }
+    .s-review .meta-line { font-size: 30px; color: var(--onyx); opacity: .75; margin-top: 6px; text-align: left; }
+    .s-review .meta-line .stars { font-size: 30px; }
+    .s-review .reply { text-wrap: pretty; width: 100%; background: var(--green); color: var(--lotion); border-radius: 28px; padding: 40px 50px 36px; text-align: left; }
+    .s-review .reply .label { font-family: "Cormorant Garamond", serif; font-style: italic; font-weight: 600; font-size: 38px; color: var(--gold-soft); }
+    .s-review .reply .text { font-weight: 300; font-style: italic; font-size: 36px; line-height: 1.45; margin-top: 10px; }
+    .s-review .reply .by { font-family: "Cormorant Garamond", serif; font-style: italic; font-weight: 600; font-size: 40px; color: var(--gold-soft); margin-top: 14px; text-align: right; }
 
-    /* 3. Call to action */
-    .s-cta { background: var(--gold); }
-    .s-cta .inner { position: absolute; top: 400px; left: 80px; right: 80px; }
-    .s-cta .kicker { font-family: Montserrat, sans-serif; font-weight: 800; font-size: 34px; letter-spacing: .2em; text-transform: uppercase; color: var(--forest); opacity: .75; }
-    .s-cta .headline { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 112px; line-height: 1; letter-spacing: -.03em; margin-top: 26px; color: var(--forest); }
-    .s-cta .sub { font-size: 40px; line-height: 1.4; margin-top: 30px; color: var(--forest); max-width: 860px; }
-    .s-cta .qr-card {
-      margin-top: 60px; background: var(--paper); border-radius: 40px; padding: 44px; display: flex; gap: 44px; align-items: center;
-      box-shadow: 0 20px 60px rgba(17,54,2,.18);
-    }
-    .s-cta .qr { width: 300px; height: 300px; flex: none; }
+    /* 3. Ask for a review */
+    .s-cta { background: var(--green); color: var(--lotion); }
+    .s-cta .col { top: 500px; bottom: 210px; justify-content: space-between; }
+    .s-cta .from { display: flex; align-items: center; gap: 26px; }
+    .s-cta .from .photo { width: 130px; height: 130px; border-radius: 50%; border: 3px solid var(--gold); }
+    .s-cta .headline { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; font-size: 100px; line-height: 1.02; }
+    .s-cta .body { font-weight: 300; font-size: 38px; line-height: 1.5; color: rgba(255,252,248,.86); }
+    .s-cta .qr-card { width: 100%; background: var(--lotion); color: var(--green); border-radius: 28px; padding: 40px; display: flex; gap: 40px; align-items: center; text-align: left; }
+    .s-cta .qr { width: 270px; height: 270px; flex: none; }
     .s-cta .qr svg { width: 100%; height: 100%; display: block; }
-    .s-cta .qr-empty { width: 300px; height: 300px; border: 6px dashed var(--sage); border-radius: 24px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 26px; color: var(--sage); padding: 20px; flex: none; }
-    .s-cta .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 26px; }
-    .s-cta .steps li { display: flex; gap: 20px; align-items: center; font-size: 34px; line-height: 1.25; color: var(--ink); font-weight: 500; }
-    .s-cta .steps b { width: 58px; height: 58px; border-radius: 50%; background: var(--forest); color: var(--gold); flex: none; display: flex; align-items: center; justify-content: center; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 30px; }
+    .s-cta .qr-empty { width: 270px; height: 270px; border: 4px dashed var(--gold); border-radius: 18px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 24px; color: var(--onyx); padding: 20px; flex: none; }
+    .s-cta .qr-title { font-family: "Cormorant Garamond", serif; font-weight: 700; font-size: 52px; line-height: 1.05; }
+    .s-cta .qr-sub { font-size: 30px; color: var(--onyx); margin-top: 14px; }
+    .s-cta .qr-sub .stars { font-size: 34px; display: block; margin-bottom: 14px; }
     .s-cta .link-zone {
-      margin-top: 44px; border: 5px dashed rgba(17,54,2,.35); border-radius: 30px; height: 150px;
-      display: flex; align-items: center; justify-content: center; font-family: Montserrat, sans-serif; font-weight: 800; font-size: 32px; color: rgba(17,54,2,.55); letter-spacing: .06em;
+      width: 100%; border: 3px dashed rgba(220,198,143,.7); border-radius: 24px; height: 130px;
+      display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--gold-soft); font-weight: 400;
     }
-    .s-cta .footer {
-      position: absolute; left: 0; right: 0; bottom: 0; height: 330px; background: var(--forest); color: var(--paper);
-      display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 70px; gap: 12px;
-    }
-    .s-cta .footer .thanks { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 52px; color: var(--gold); }
-    .s-cta .footer .tag { text-align: center; font-size: 30px; color: rgba(251,250,246,.75); }
-    .s-cta .footer-bands { bottom: 330px; }
 
     /* Hidden render host keeps full-size stories out of layout while exporting */
     #export-host { position: fixed; left: -99999px; top: 0; }
@@ -213,18 +197,30 @@
 
       <label for="lang">Story language</label>
       <select id="lang" onchange="onLangChange()">
-        <option value="pt">Português</option>
         <option value="en">English</option>
+        <option value="pt">Português</option>
         <option value="nl">Nederlands</option>
         <option value="es">Español</option>
       </select>
+
+      <div class="row">
+        <div>
+          <label for="sender">Signed by</label>
+          <input type="text" id="sender" oninput="save(); render()">
+        </div>
+        <div>
+          <label>Your photo</label>
+          <div class="photo-field" id="main-photo-field"></div>
+        </div>
+      </div>
+      <p class="hint">A photo of you, your horses or the hay makes the first and last story feel personal. It stays in this browser only.</p>
 
       <label for="profile">Google profile</label>
       <select id="profile" onchange="onProfileChange()">
         <option value="algarve">Prime Hay Portugal ALGARVE</option>
         <option value="ribatejo">Prime Hay Portugal RIBATEJO</option>
       </select>
-      <p class="hint">Each profile keeps its own rating, review count and review link. Most customers are in the Algarve, so that profile is the default.</p>
+      <p class="hint">Each profile keeps its own rating, review count and review link. Most customers are in the Algarve, so that profile is the default. The location is not shown on the stories.</p>
 
       <div class="row">
         <div>
@@ -236,17 +232,16 @@
           <input type="number" id="count" min="1" oninput="save(); render()">
         </div>
       </div>
-      <p class="hint">Copy these from your Google Business Profile so the intro story matches what customers see.</p>
 
       <label for="review-link">Google review link</label>
       <input type="url" id="review-link" placeholder="https://g.page/r/…/review" oninput="save(); render()">
-      <p class="hint">Google Business Profile → <b>Ask for reviews</b> → copy the link. It becomes the QR code, and you paste the same link in an Instagram link sticker on the last story.</p>
+      <p class="hint">Google Business Profile → <b>Ask for reviews</b> → copy the link. It becomes the QR code; paste the same link in an Instagram link sticker on the last story.</p>
 
       <div class="section-header" style="margin: 1.5rem 0 0.5rem;">
         <h2 style="font-size: 15px;">Reviews</h2>
         <button class="ghost" onclick="addReview()">+ Add review</button>
       </div>
-      <p class="hint">Paste the exact text from Google. One story is made per review; long reviews shrink to fit, so shorten to the best sentence if needed.</p>
+      <p class="hint">Paste the exact text from Google. Add an English translation if the review is in another language; it is used on the English stories and marked as translated. Leave the reply empty to use a standard thank-you.</p>
       <div id="review-list"></div>
     </div>
 
@@ -264,78 +259,96 @@
 <div id="export-host"></div>
 
 <script>
-const STORAGE_KEY = 'primeHayReviewStories';
+const STORAGE_KEY = 'primeHayReviewStories.v2';
 
 const COPY = {
-  pt: {
-    introKicker: 'Avaliações Google',
-    introHeadline: 'O seu cavalo já sabe.',
-    introSub: 'Não somos nós que o dizemos. São os nossos clientes.',
-    reviews: n => `${n} avaliações de clientes`,
-    badge: 'Google',
-    role: 'Cliente Prime Hay',
-    ctaKicker: 'Também é cliente?',
-    ctaHeadline: 'A sua opinião vale ouro.',
-    ctaSub: 'Deixe-nos uma avaliação no Google. Demora 30 segundos e ajuda outros cavaleiros a encontrar feno a sério.',
-    steps: ['Aponte a câmara ao código', 'Escolha as estrelas', 'Conte-nos como correu'],
-    linkZone: 'Toque no link ↓',
-    noLink: 'Adicione o link de avaliação Google',
-    thanks: 'Obrigado! 🌾',
-    tag: 'Tudo começa com forragem a sério.',
-  },
   en: {
-    introKicker: 'Google reviews',
-    introHeadline: 'Your horse already knows.',
-    introSub: "Don't take our word for it. Take theirs.",
-    reviews: n => `${n} customer reviews`,
-    badge: 'Google',
-    role: 'Prime Hay customer',
-    ctaKicker: 'Already a customer?',
-    ctaHeadline: 'Your opinion is worth gold.',
-    ctaSub: 'Leave us a Google review. It takes 30 seconds and helps other riders find proper hay.',
-    steps: ['Scan the code with your camera', 'Pick your stars', 'Tell us how it went'],
-    linkZone: 'Tap the link ↓',
+    decimal: '.',
+    introKicker: 'A thank-you note',
+    introHeadline: n => `${n} riders took the time to tell Google about us.`,
+    introSub: 'We read every single one. Here are a few that made our week.',
+    onGoogle: 'on Google',
+    reviewKicker: 'Straight from Google',
+    googleReview: 'Google review',
+    translated: 'Translated from the original review',
+    replyLabel: 'Our reply',
+    reply: name => `Thank you${name ? ', ' + name : ''}! Happy horses are exactly why we do this.`,
+    ctaKicker: 'A small favour',
+    ctaHeadline: 'Could you tell others about us?',
+    ctaBody: "We're a small, independent hay business. A Google review from you helps another rider find good hay for their horse, and honestly, it makes our day.",
+    qrTitle: 'Scan to write your review',
+    qrSub: 'Takes about a minute',
+    linkZone: 'Or tap the link ↓',
     noLink: 'Add your Google review link',
-    thanks: 'Thank you! 🌾',
-    tag: 'It all starts with proper forage.',
+    team: 'the Prime Hay team',
+  },
+  pt: {
+    decimal: ',',
+    introKicker: 'Uma nota de agradecimento',
+    introHeadline: n => `${n} cavaleiros deram-se ao trabalho de nos avaliar no Google.`,
+    introSub: 'Lemos todas, uma a uma. Aqui ficam algumas que nos fizeram a semana.',
+    onGoogle: 'no Google',
+    reviewKicker: 'Diretamente do Google',
+    googleReview: 'Avaliação Google',
+    translated: 'Traduzido da avaliação original',
+    replyLabel: 'A nossa resposta',
+    reply: name => `Obrigada${name ? ', ' + name : ''}! Cavalos felizes são a razão pela qual fazemos isto.`,
+    ctaKicker: 'Um pequeno favor',
+    ctaHeadline: 'Pode falar de nós a outros?',
+    ctaBody: 'Somos uma pequena empresa independente de feno. A sua avaliação no Google ajuda outro cavaleiro a encontrar bom feno para o seu cavalo e, sinceramente, faz-nos o dia.',
+    qrTitle: 'Digitalize para escrever a sua avaliação',
+    qrSub: 'Demora cerca de um minuto',
+    linkZone: 'Ou toque no link ↓',
+    noLink: 'Adicione o link de avaliação Google',
+    team: 'a equipa Prime Hay',
   },
   nl: {
-    introKicker: 'Google reviews',
-    introHeadline: 'Je paard weet het al.',
-    introSub: 'Niet wij zeggen het. Onze klanten zeggen het.',
-    reviews: n => `${n} klantbeoordelingen`,
-    badge: 'Google',
-    role: 'Klant van Prime Hay',
-    ctaKicker: 'Ook klant?',
-    ctaHeadline: 'Jouw mening is goud waard.',
-    ctaSub: 'Laat een review achter op Google. Het kost 30 seconden en helpt andere ruiters echt goed hooi te vinden.',
-    steps: ['Scan de code met je camera', 'Kies je sterren', 'Vertel hoe het ging'],
-    linkZone: 'Tik op de link ↓',
+    decimal: ',',
+    introKicker: 'Een bedankje',
+    introHeadline: n => `${n} ruiters namen de moeite om ons te reviewen op Google.`,
+    introSub: 'We lezen ze allemaal. Hier een paar die onze week goed maakten.',
+    onGoogle: 'op Google',
+    reviewKicker: 'Rechtstreeks van Google',
+    googleReview: 'Google-review',
+    translated: 'Vertaald uit de oorspronkelijke review',
+    replyLabel: 'Ons antwoord',
+    reply: name => `Dank je wel${name ? ', ' + name : ''}! Blije paarden, daar doen we het voor.`,
+    ctaKicker: 'Een kleine gunst',
+    ctaHeadline: 'Wil jij anderen over ons vertellen?',
+    ctaBody: 'We zijn een klein, onafhankelijk hooibedrijf. Jouw Google-review helpt een andere ruiter goed hooi voor zijn paard te vinden, en eerlijk: het maakt onze dag.',
+    qrTitle: 'Scan om je review te schrijven',
+    qrSub: 'Kost ongeveer een minuut',
+    linkZone: 'Of tik op de link ↓',
     noLink: 'Voeg je Google-reviewlink toe',
-    thanks: 'Dank je wel! 🌾',
-    tag: 'Alles begint met echt goed ruwvoer.',
+    team: 'het Prime Hay-team',
   },
   es: {
-    introKicker: 'Reseñas de Google',
-    introHeadline: 'Tu caballo ya lo sabe.',
-    introSub: 'No lo decimos nosotros. Lo dicen nuestros clientes.',
-    reviews: n => `${n} reseñas de clientes`,
-    badge: 'Google',
-    role: 'Cliente de Prime Hay',
-    ctaKicker: '¿También eres cliente?',
-    ctaHeadline: 'Tu opinión vale oro.',
-    ctaSub: 'Déjanos una reseña en Google. Son 30 segundos y ayudas a otros jinetes a encontrar heno de verdad.',
-    steps: ['Escanea el código con la cámara', 'Elige tus estrellas', 'Cuéntanos qué tal'],
-    linkZone: 'Toca el enlace ↓',
+    decimal: ',',
+    introKicker: 'Una nota de agradecimiento',
+    introHeadline: n => `${n} jinetes se tomaron el tiempo de reseñarnos en Google.`,
+    introSub: 'Las leemos todas. Aquí van algunas que nos alegraron la semana.',
+    onGoogle: 'en Google',
+    reviewKicker: 'Directo de Google',
+    googleReview: 'Reseña de Google',
+    translated: 'Traducido de la reseña original',
+    replyLabel: 'Nuestra respuesta',
+    reply: name => `¡Gracias${name ? ', ' + name : ''}! Caballos felices: por eso hacemos esto.`,
+    ctaKicker: 'Un pequeño favor',
+    ctaHeadline: '¿Nos ayudas a que otros nos conozcan?',
+    ctaBody: 'Somos una pequeña empresa independiente de heno. Tu reseña en Google ayuda a otro jinete a encontrar buen heno para su caballo y, sinceramente, nos alegra el día.',
+    qrTitle: 'Escanea para escribir tu reseña',
+    qrSub: 'Tarda un minuto',
+    linkZone: 'O toca el enlace ↓',
     noLink: 'Añade tu enlace de reseñas de Google',
-    thanks: '¡Gracias! 🌾',
-    tag: 'Todo empieza con forraje de verdad.',
+    team: 'el equipo de Prime Hay',
   },
 };
 
 // Seeded with the review already used in the Pavo Standard campaign; add the rest from Google.
 const DEFAULTS = {
-  lang: 'pt',
+  lang: 'en',
+  sender: 'Marlot',
+  photo: '',
   profile: 'algarve',
   // Per Google Maps, 28 Sep 2026
   profiles: {
@@ -343,9 +356,17 @@ const DEFAULTS = {
     ribatejo: { name: 'Ribatejo', rating: '5,0', count: 3, reviewLink: '' },
   },
   reviews: [
-    { name: 'Maria José Ramos', stars: 5, text: 'Adoram! Não saem de junto da rede onde é colocado o feno.' },
+    {
+      name: 'Maria José Ramos', stars: 5,
+      text: 'Adoram! Não saem de junto da rede onde é colocado o feno.',
+      translation: "They love it! They won't leave the net where the hay goes.",
+      reply: '', photo: '',
+    },
   ],
 };
+
+// Logos from the brand guidelines, inlined at startup so PNG export never depends on a network fetch
+const LOGOS = { main: 'assets/logo.png', reverse: 'assets/logo-reverse.png' };
 
 let state = load();
 
@@ -364,13 +385,19 @@ function load() {
   return structuredClone(DEFAULTS);
 }
 
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { showStatus('Photos are too large to remember after a reload; everything else is saved.', false); }
+}
+
 function save() {
   state.lang = document.getElementById('lang').value;
+  state.sender = document.getElementById('sender').value;
   const prof = state.profiles[state.profile];
   prof.rating = document.getElementById('rating').value;
   prof.count = document.getElementById('count').value;
   prof.reviewLink = document.getElementById('review-link').value.trim();
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  persist();
 }
 
 function resetDefaults() {
@@ -392,12 +419,52 @@ function onProfileChange() {
 
 function profile() { return state.profiles[state.profile]; }
 
+// Downscale uploads so they stay small enough for localStorage and fast to export
+function readPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 1200;
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k);
+      c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      resolve(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function photoField(host, get, set) {
+  host.innerHTML = `<div class="thumb"></div><input type="file" accept="image/*"><button class="ghost" type="button">Remove</button>`;
+  const thumb = host.querySelector('.thumb');
+  const btn = host.querySelector('button');
+  const sync = () => {
+    thumb.style.backgroundImage = get() ? `url(${get()})` : '';
+    btn.style.display = get() ? '' : 'none';
+  };
+  host.querySelector('input').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    set(await readPhoto(f));
+    e.target.value = '';
+    sync(); persist(); render();
+  });
+  btn.addEventListener('click', () => { set(''); sync(); persist(); render(); });
+  sync();
+}
+
 function fillForm() {
   document.getElementById('lang').value = state.lang;
+  document.getElementById('sender').value = state.sender;
   document.getElementById('profile').value = state.profile;
   document.getElementById('rating').value = profile().rating;
   document.getElementById('count').value = profile().count;
   document.getElementById('review-link').value = profile().reviewLink;
+  photoField(document.getElementById('main-photo-field'), () => state.photo, v => (state.photo = v));
   renderReviewList();
 }
 
@@ -415,10 +482,14 @@ function renderReviewList() {
           <option value="5">★★★★★</option><option value="4">★★★★☆</option>
         </select>
       </div>
-      <textarea placeholder="Review text, exactly as on Google" data-field="text"></textarea>`;
-    item.querySelector('[data-field="name"]').value = r.name;
-    item.querySelector('[data-field="stars"]').value = String(r.stars);
-    item.querySelector('[data-field="text"]').value = r.text;
+      <textarea placeholder="Review text, exactly as on Google" data-field="text"></textarea>
+      <textarea placeholder="English translation (optional)" data-field="translation" style="min-height:52px"></textarea>
+      <textarea placeholder="Your reply (optional, a standard thank-you is used otherwise)" data-field="reply" style="min-height:52px"></textarea>
+      <label style="font-weight:400;color:#5b6270">Photo of their horse (optional)</label>
+      <div class="photo-field"></div>`;
+    ['name', 'stars', 'text', 'translation', 'reply'].forEach(f => {
+      item.querySelector(`[data-field="${f}"]`).value = f === 'stars' ? String(r.stars) : (r[f] || '');
+    });
     item.querySelectorAll('[data-field]').forEach(el => {
       el.addEventListener('input', () => {
         const f = el.dataset.field;
@@ -426,6 +497,7 @@ function renderReviewList() {
         save(); render();
       });
     });
+    photoField(item.querySelector('.photo-field'), () => state.reviews[i].photo, v => (state.reviews[i].photo = v));
     item.querySelector('[data-remove]').addEventListener('click', () => {
       state.reviews.splice(i, 1);
       save(); renderReviewList(); render();
@@ -435,9 +507,9 @@ function renderReviewList() {
 }
 
 function addReview() {
-  state.reviews.push({ name: '', stars: 5, text: '' });
+  state.reviews.push({ name: '', stars: 5, text: '', translation: '', reply: '', photo: '' });
   save(); renderReviewList(); render();
-  const areas = document.querySelectorAll('#review-list textarea');
+  const areas = document.querySelectorAll('#review-list textarea[data-field="text"]');
   areas[areas.length - 1].focus();
 }
 
@@ -451,82 +523,98 @@ function initials(name) {
   return name.trim().split(/\s+/).filter(Boolean).map(p => p[0]).slice(0, 2).join('').toUpperCase() || '★';
 }
 
-// Bands: forest / gold / sage / paper stripes, stacked like a cut bale
-function bands(order) {
-  const colors = { f: 'var(--forest)', g: 'var(--gold)', d: 'var(--gold-deep)', s: 'var(--sage)', p: 'var(--paper)', c: 'var(--cream)' };
-  return `<div class="bands">${order.map(([c, h]) => `<i style="background:${colors[c]};height:${h}px"></i>`).join('')}</div>`;
+// "Maria José Ramos" -> "Maria José", "Ana Silva" -> "Ana": Portuguese names often have a double first name
+function firstName(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return parts.slice(0, parts.length >= 3 ? 2 : 1).join(' ');
+}
+
+function rating(t) { return (profile().rating || '5,0').replace(/[.,]/, t.decimal); }
+
+function signature(t) { return `— ${esc(state.sender || 'Prime Hay')} & ${esc(t.team)}`; }
+
+function logo(kind, top, width) {
+  return `<img class="logo" src="${LOGOS[kind]}" alt="Prime Hay Portugal" style="top:${top}px;width:${width}px">`;
 }
 
 function buildIntro(t) {
   const el = document.createElement('div');
   el.className = 'story s-intro';
+  const visual = state.photo
+    ? `<div class="visual"><div class="photo arch" style="background-image:url(${state.photo})"></div>
+       <div class="score-row"><span class="stars">★★★★★</span><span>${esc(rating(t))} ${esc(t.onGoogle)}</span></div></div>`
+    : `<div class="visual"><div class="score">${esc(rating(t))}</div>
+       <div class="score-row"><span class="stars">★★★★★</span><span>${esc(t.onGoogle)}</span></div></div>`;
   el.innerHTML = `
-    <div class="inner">
-      <div class="kicker">${esc(t.introKicker)}</div>
-      <div class="score">${esc(profile().rating || '5,0')}</div>
-      <div class="score-stars">★★★★★</div>
-      <div class="count">${esc(t.reviews(profile().count || ''))}</div>
-      <div class="headline">${esc(t.introHeadline)}</div>
-      <div class="sub">${esc(t.introSub)}</div>
-    </div>
-    ${bands([['g', 22], ['f', 18], ['d', 30], ['f', 14], ['s', 46], ['p', 16], ['c', 260]])}
-    <div style="position:absolute;left:80px;right:80px;bottom:110px;">
-      <div class="wordmark" style="color:var(--forest);white-space:nowrap">Prime Hay</div>
-      <div class="mont" style="font-weight:800;font-size:30px;color:var(--sage);margin-top:10px">🌾 ${esc(t.tag)}</div>
+    <div class="frame-line"></div>
+    ${logo('reverse', 190, 330)}
+    <div class="col">
+      <div>
+        <div class="kicker">${esc(t.introKicker)}</div>
+        <div class="headline" style="margin-top:22px">${esc(t.introHeadline(profile().count || ''))}</div>
+        <div class="sub">${esc(t.introSub)}</div>
+      </div>
+      ${visual}
+      <div class="signature">${signature(t)}</div>
     </div>`;
   return el;
 }
 
-function buildReview(t, r, idx, total) {
+function buildReview(t, r) {
   const el = document.createElement('div');
   el.className = 'story s-review';
+  const useTranslation = state.lang === 'en' && r.translation && r.translation.trim();
+  const quote = useTranslation ? r.translation : r.text;
   const stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
+  const reply = (r.reply && r.reply.trim()) || t.reply(firstName(r.name));
   el.innerHTML = `
-    <div class="topbar">
-      <span class="wordmark">Prime Hay</span>
-      <span class="pill" style="background:var(--gold);color:var(--forest)">★ ${esc(t.badge)}</span>
-    </div>
-    ${bands([['g', 14], ['s', 10]]).replace('class="bands"', 'class="bands" style="top:330px;bottom:auto"')}
-    <div class="quote-mark">“</div>
-    <div class="body">
-      <div class="stars review-stars">${stars}</div>
-      <div class="quote" data-fit>${esc(r.text || '…')}</div>
-    </div>
-    <div class="who">
-      <div class="avatar">${esc(initials(r.name))}</div>
-      <div>
-        <div class="name">${esc(r.name || '—')}</div>
-        <div class="role">${esc(t.role)}</div>
+    <div class="frame-line"></div>
+    ${logo('main', 150, 250)}
+    <div class="col">
+      <div class="qmark">“</div>
+      <div class="qbox">
+        <div class="quote" data-fit>${esc(quote || '…')}</div>
+        ${useTranslation ? `<div class="translated">${esc(t.translated)}</div>` : ''}
       </div>
-    </div>
-    ${bands([['s', 12], ['p', 10], ['d', 26], ['f', 300]])}
-    <div class="counter" style="background:var(--gold)">${idx + 1}/${total}</div>`;
+      <div class="who">
+        <div class="avatar" style="${r.photo ? `background-image:url(${r.photo})` : ''}">${r.photo ? '' : esc(initials(r.name))}</div>
+        <div>
+          <div class="name">${esc(r.name || '—')}</div>
+          <div class="meta-line"><span class="stars">${stars}</span> · ${esc(t.googleReview)}</div>
+        </div>
+      </div>
+      <div class="reply">
+        <div class="label">${esc(t.replyLabel)}</div>
+        <div class="text">${esc(reply)}</div>
+        <div class="by">— ${esc(state.sender || 'Prime Hay')}</div>
+      </div>
+    </div>`;
   return el;
 }
 
 function buildCta(t) {
   const el = document.createElement('div');
   el.className = 'story s-cta';
+  const link = profile().reviewLink;
   el.innerHTML = `
-    <div class="topbar" style="height:300px">
-      <span class="wordmark">Prime Hay</span>
-      <span class="stars" style="font-size:44px;color:var(--gold)">★★★★★</span>
-    </div>
-    ${bands([['d', 18], ['p', 10]]).replace('class="bands"', 'class="bands" style="top:300px;bottom:auto"')}
-    <div class="inner">
-      <div class="kicker">${esc(t.ctaKicker)}</div>
+    <div class="frame-line"></div>
+    ${logo('reverse', 170, 300)}
+    <div class="col">
+      <div class="from">
+        ${state.photo ? `<div class="photo" style="background-image:url(${state.photo})"></div>` : ''}
+        <div class="kicker">${esc(t.ctaKicker)}</div>
+      </div>
       <div class="headline">${esc(t.ctaHeadline)}</div>
-      <div class="sub">${esc(t.ctaSub)}</div>
+      <div class="body">${esc(t.ctaBody)}</div>
       <div class="qr-card">
-        ${profile().reviewLink ? `<div class="qr">${qrSvg(profile().reviewLink)}</div>` : `<div class="qr-empty">${esc(t.noLink)}</div>`}
-        <ol class="steps">${t.steps.map((s, i) => `<li><b>${i + 1}</b>${esc(s)}</li>`).join('')}</ol>
+        ${link ? `<div class="qr">${qrSvg(link)}</div>` : `<div class="qr-empty">${esc(t.noLink)}</div>`}
+        <div>
+          <div class="qr-title">${esc(t.qrTitle)}</div>
+          <div class="qr-sub"><span class="stars">★★★★★</span>${esc(t.qrSub)}</div>
+        </div>
       </div>
       <div class="link-zone">${esc(t.linkZone)}</div>
-    </div>
-    ${bands([['p', 10], ['s', 22], ['d', 16]]).replace('class="bands"', 'class="bands footer-bands"')}
-    <div class="footer">
-      <div class="thanks">${esc(t.thanks)}</div>
-      <div class="tag">${esc(t.tag)}</div>
+      <div class="signature">${signature(t)}</div>
     </div>`;
   return el;
 }
@@ -542,14 +630,13 @@ function qrSvg(text) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges"><path d="${path}" fill="#113602"/></svg>`;
 }
 
-// Shrink the quote until it fits its box (box is 920x ~700 at full size)
+// Shrink each quote until it fits the space left between the quote mark and the name
 function fitQuotes(root) {
   root.querySelectorAll('[data-fit]').forEach(q => {
     const box = q.parentElement;
-    const starsH = box.firstElementChild.offsetHeight + 44;
-    let size = 92;
+    let size = 96;
     q.style.fontSize = size + 'px';
-    while (size > 40 && q.offsetHeight > box.clientHeight - starsH) {
+    while (size > 40 && box.scrollHeight > box.clientHeight) {
       size -= 4;
       q.style.fontSize = size + 'px';
     }
@@ -557,10 +644,10 @@ function fitQuotes(root) {
 }
 
 function buildAll() {
-  const t = COPY[state.lang] || COPY.pt;
+  const t = COPY[state.lang] || COPY.en;
   const reviews = state.reviews.filter(r => r.text.trim() || r.name.trim());
-  const stories = [{ label: 'Rating intro', el: buildIntro(t) }];
-  reviews.forEach((r, i) => stories.push({ label: `Review · ${r.name || 'unnamed'}`, el: buildReview(t, r, i, reviews.length) }));
+  const stories = [{ label: 'Thank-you intro', el: buildIntro(t) }];
+  reviews.forEach(r => stories.push({ label: `Review · ${r.name || 'unnamed'}`, el: buildReview(t, r) }));
   stories.push({ label: 'Ask for a review', el: buildCta(t) });
   return stories;
 }
@@ -658,11 +745,22 @@ async function downloadAll() {
   }
 }
 
+async function inlineLogos() {
+  await Promise.all(Object.entries(LOGOS).map(async ([k, url]) => {
+    try {
+      const blob = await (await fetch(url)).blob();
+      LOGOS[k] = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
+    } catch (e) { /* keep the relative path */ }
+  }));
+}
+
 window.addEventListener('load', async () => {
   fillForm();
   render();
-  // Re-fit once webfonts arrive, since Montserrat is wider than the fallback
-  if (document.fonts && document.fonts.ready) { await document.fonts.ready; render(); }
+  await inlineLogos();
+  // Re-render once logos are inlined and webfonts have arrived, so quotes are fitted with the real font
+  if (document.fonts && document.fonts.ready) await document.fonts.ready;
+  render();
 });
 </script>
 
