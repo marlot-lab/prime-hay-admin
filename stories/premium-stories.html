@@ -80,11 +80,6 @@
   .sh { background: url(img/shavings.jpg) center/cover; box-shadow: inset 0 0 0 2px rgba(20,30,5,.45); }
   .sh-side { background: linear-gradient(rgba(10,20,0,.25), rgba(10,20,0,.25)), url(img/shavings.jpg) left center/auto 100%; box-shadow: inset 0 0 0 2px rgba(20,30,5,.5); }
   .sh-top { background: linear-gradient(rgba(255,250,230,.12), rgba(255,250,230,.12)), url(img/shavings.jpg) left top/auto 180%; box-shadow: inset 0 0 0 2px rgba(20,30,5,.45); }
-  /* real French Meadow Hay small bale, cut from the product photos */
-  .m-front { background: url(img/meadow-side.jpg) center/100% 100%; box-shadow: inset 0 0 18px rgba(20,30,5,.35); }
-  .m-back { background: url(img/meadow-side2.jpg) center/100% 100%; box-shadow: inset 0 0 18px rgba(20,30,5,.35); }
-  .m-end { background: linear-gradient(rgba(10,20,0,.22), rgba(10,20,0,.22)), url(img/meadow-end.jpg) center/100% 100%; box-shadow: inset 0 0 18px rgba(20,30,5,.4); }
-  .m-top { background: linear-gradient(rgba(255,250,230,.1), rgba(255,250,230,.1)), url(img/meadow-top.jpg) center/100% 100%; box-shadow: inset 0 0 18px rgba(20,30,5,.35); }
   .wood { background: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.1)), url(img/pallet.jpg) center/100% 100%; }
   .wood-side { background: linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.3)), url(img/pallet.jpg) center/100% 100%; }
   .wood-top { background: linear-gradient(90deg, rgba(60,35,10,.35) 0 3px, transparent 3px 34px) 0 0/35px 100%, url(img/pallet.jpg) center/100% 100%; }
@@ -261,7 +256,6 @@
     hay: ['hay', 'hay', 'hay-side', 'hay-top'],
     sh: ['sh', 'sh', 'sh-side', 'sh-top'],
     wood: ['wood', 'wood', 'wood-side', 'wood-top'],
-    meadow: ['m-front', 'm-back', 'm-end', 'm-top'],
   };
   function face(parent, cls, w, h, tf) {
     const f = document.createElement('div');
@@ -300,14 +294,14 @@
         for (const [x, z] of [[-79, -64], [79, -64], [-79, 64], [79, 64]])
           box(p, { w: BW, h: BH, d: BD, x, z, y: 28 + layer * (BH + 2) });
     },
-    bale(p) { shadow(p, 480, 340); box(p, { w: 300, h: 136, d: 150, tex: 'meadow' }); },
+    bale(p) { shadow(p, 480, 340); box(p, { w: 300, h: 136, d: 150 }); },
     pyramid(p) {
       shadow(p, 560, 400);
       box(p, { w: 220, h: 90, d: 150, x: -114, cls: 'drop', delay: .5 });
       box(p, { w: 220, h: 90, d: 150, x: 114, cls: 'drop', delay: .75 });
       box(p, { w: 220, h: 90, d: 150, x: 0, y: 92, cls: 'drop', delay: 1.05 });
     },
-    press(p) { shadow(p, 480, 340); box(p, { w: 300, h: 136, d: 150, tex: 'meadow', cls: 'press' }); },
+    press(p) { shadow(p, 480, 340); box(p, { w: 300, h: 136, d: 150, cls: 'press' }); },
     bag(p) { shadow(p, 420, 320); box(p, { w: 240, h: 150, d: 150, tex: 'sh' }); },
     stack(p) {
       shadow(p, 600, 520); pallet(p, 'drop', .3);
