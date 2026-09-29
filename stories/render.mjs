@@ -10,7 +10,7 @@ const FPS = 30;
 const ffmpeg = process.env.FFMPEG || 'ffmpeg';
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
-await page.goto(pathToFileURL(path.join(dir, 'premium-stories.html')).href + '?export', { waitUntil: 'networkidle' });
+await page.goto(pathToFileURL(path.join(dir, process.env.STORY_FILE || 'premium-stories.html')).href + '?export', { waitUntil: 'networkidle' });
 await page.addStyleTag({ content: `
   body{padding:0!important} .page{gap:0!important}
   .viewport{width:1080px!important;height:1920px!important;border-radius:0!important;box-shadow:none!important}
@@ -22,7 +22,7 @@ const only = process.argv[2] ? Number(process.argv[2]) - 1 : null;
 
 for (let i = 0; i < count; i++) {
   if (only !== null && i !== only) continue;
-  const out = path.join(dir, 'export', `story-${i + 1}.mp4`);
+  const out = path.join(dir, 'export', `${process.env.OUT_PREFIX || 'story'}-${i + 1}.mp4`);
   const ff = spawn(ffmpeg, ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-i', '-',
     '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-preset', 'medium', '-movflags', '+faststart', out], { stdio: ['pipe', 'ignore', 'inherit'] });
   const el = await page.$('#viewport');
