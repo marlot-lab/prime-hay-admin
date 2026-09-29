@@ -94,6 +94,7 @@
     .previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.5rem; }
     .preview { display: flex; flex-direction: column; gap: 8px; }
     .preview .frame {
+      position: relative;
       width: 270px; height: 480px; overflow: hidden; border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.08);
     }
@@ -101,6 +102,9 @@
     .preview .meta { display: flex; justify-content: space-between; align-items: center; width: 270px; }
     .preview .meta span { font-size: 12px; color: #5b6270; }
     .preview .meta button { padding: 6px 12px; font-size: 12px; }
+    .preview .meta .btns { display: flex; gap: 6px; }
+    .preview .frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; }
+    .preview .progress { position: absolute; left: 0; bottom: 0; height: 4px; background: #BC993F; width: 0; transition: width .2s linear; }
 
     /* ---------- Story design, per the Prime Hay Brandbook (Living Edition) ----------
        Social visual system: Forest backgrounds, Montserrat 700–900 headlines, Inter body,
@@ -184,6 +188,15 @@
     .s-cta .signed { color: var(--forest); }
     .s-cta .tagline { color: var(--gold); }
 
+    /* Video mode: the story is rendered as transparent layers over moving footage */
+    .story.video-mode { background: transparent; }
+    .story.video-mode .bleed { display: none; }
+    .s-cta.video-mode { color: var(--cream); }
+    .s-cta.video-mode .body { color: rgba(251,250,246,.9); }
+    .s-cta.video-mode .signed { color: var(--soft-gold); }
+    .s-cta.video-mode .pill { background: var(--soft-gold); color: var(--forest); }
+    .s-cta.video-mode .qr-card { border-color: transparent; }
+
     /* Hidden render host keeps full-size stories out of layout while exporting */
     #export-host { position: fixed; left: -99999px; top: 0; }
   </style>
@@ -223,6 +236,13 @@
       </div>
       <p class="hint">A photo of you, your horses or the hay (real stable photography, per the brandbook) makes the first and last story personal. It stays in this browser only.</p>
 
+      <label for="bg-video">Background video (optional)</label>
+      <div class="photo-field">
+        <input type="file" id="bg-video" accept="video/*" onchange="onVideoChange(this)">
+        <button class="ghost" type="button" id="bg-video-clear" style="display:none" onclick="clearVideo()">Remove</button>
+      </div>
+      <p class="hint">For the video stories: 10–20 seconds of your own footage (the yard, hay being placed, horses eating) works best. Each story uses a different part of the clip. Without a video, a slow-moving background in brand colours is used. Keep this tab open and visible while a video is being recorded.</p>
+
       <label for="profile">Google profile</label>
       <select id="profile" onchange="onProfileChange()">
         <option value="algarve">Prime Hay Portugal ALGARVE</option>
@@ -256,7 +276,10 @@
     <div>
       <div class="section-header">
         <h2>Stories <span id="story-count" style="color:#5b6270; font-size:14px;"></span></h2>
-        <button id="download-all" onclick="downloadAll()">Download all (PNG)</button>
+        <div style="display:flex; gap:8px;">
+          <button class="ghost" id="download-all" onclick="downloadAll()">Download all (PNG)</button>
+          <button id="download-all-video" onclick="downloadAllVideos()">Make all videos</button>
+        </div>
       </div>
       <div id="previews" class="previews"></div>
       <div id="status" class="status"></div>
@@ -547,49 +570,51 @@ function signature(t) { return `— ${esc(state.sender || 'Prime Hay')} & ${esc(
 
 // Official master files only (brandbook: never retype the wordmark or redraw the emblem)
 function logo(kind) {
-  return `<img class="logo" src="${LOGOS[kind]}" alt="Prime Hay">`;
+  return `<img class="logo" data-layer="0" src="${LOGOS[kind]}" alt="Prime Hay">`;
 }
 
 // The faint wheat-stalk line drawing from the social templates
 function wheat(color) {
   let d = 'M130 0V760';
   for (let y = 60; y <= 560; y += 70) d += ` M130 ${y + 70}C95 ${y + 40} 45 ${y + 20} 10 ${y}M130 ${y + 70}C165 ${y + 40} 215 ${y + 20} 250 ${y}`;
-  return `<svg class="wheat" viewBox="0 0 260 760" fill="none"><path d="${d}" stroke="${color}" stroke-width="5" stroke-linecap="round"/></svg>`;
+  return `<svg class="wheat" data-layer="0" viewBox="0 0 260 760" fill="none"><path d="${d}" stroke="${color}" stroke-width="5" stroke-linecap="round"/></svg>`;
 }
 
 function chrome(t, dark) {
   return `${wheat(dark ? 'rgba(107,138,113,.28)' : 'rgba(17,54,2,.07)')}
     ${logo(dark ? 'cream' : 'forest')}
-    <div class="tagline">${esc(t.tagline)}</div>`;
+    <div class="tagline" data-layer="0">${esc(t.tagline)}</div>`;
 }
 
-function buildIntro(t) {
+// Elements carry data-layer so the video export can animate them in one group at a time
+function buildIntro(t, video) {
   const el = document.createElement('div');
-  el.className = 'story s-intro' + (state.photo ? ' has-photo' : '');
+  el.className = 'story s-intro' + (state.photo && !video ? ' has-photo' : '') + (video ? ' video-mode' : '');
+  const compact = state.photo || video;
   el.innerHTML = `
-    ${state.photo ? `<div class="photo bleed" style="background-image:url(${state.photo})"></div>` : ''}
+    ${state.photo && !video ? `<div class="photo bleed" style="background-image:url(${state.photo})"></div>` : ''}
     ${chrome(t, true)}
     <div class="col">
-      <div>
+      <div data-layer="1">
         <div class="eyebrow">${esc(t.introEyebrow)}</div>
         <div class="headline">${esc(t.introHeadline(profile().count || ''))}</div>
         <div class="sub">${esc(t.introSub)}</div>
       </div>
-      ${state.photo
-        ? `<div class="score-row"><span class="score-inline">${esc(rating(t))}</span><span class="stars">★★★★★</span><span>${esc(t.onGoogle)}</span></div>`
-        : `<div>
+      ${compact
+        ? `<div class="score-row" data-layer="2"><span class="score-inline">${esc(rating(t))}</span><span class="stars">★★★★★</span><span>${esc(t.onGoogle)}</span></div>`
+        : `<div data-layer="2">
         <div class="score">${esc(rating(t))}</div>
         <div class="score-row"><span class="stars">★★★★★</span><span>${esc(t.onGoogle)}</span></div>
         <div class="proof">${esc(t.proof)}</div>
       </div>`}
-      <div class="signed">${signature(t)}</div>
+      <div class="signed" data-layer="3">${signature(t)}</div>
     </div>`;
   return el;
 }
 
-function buildReview(t, r) {
+function buildReview(t, r, video) {
   const el = document.createElement('div');
-  el.className = 'story s-review';
+  el.className = 'story s-review' + (video ? ' video-mode' : '');
   const useTranslation = state.lang === 'en' && r.translation && r.translation.trim();
   const quote = useTranslation ? r.translation : r.text;
   const stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
@@ -597,20 +622,20 @@ function buildReview(t, r) {
   el.innerHTML = `
     ${chrome(t, true)}
     <div class="col">
-      <div class="qbox">
+      <div class="qbox" data-layer="1">
         <div class="qmark">“</div>
         <div class="stars review-stars">${stars}</div>
         <div class="quote" data-fit>${esc(quote || '…')}</div>
         ${useTranslation ? `<div class="translated">${esc(t.translated)}</div>` : ''}
       </div>
-      <div class="who">
+      <div class="who" data-layer="2">
         <div class="avatar" style="${r.photo ? `background-image:url(${r.photo})` : ''}">${r.photo ? '' : esc(initials(r.name))}</div>
         <div>
           <div class="name">${esc(r.name || '—')}</div>
           <div class="meta-line">${esc(t.googleReview)}</div>
         </div>
       </div>
-      <div class="reply">
+      <div class="reply" data-layer="3">
         <div class="label">${esc(t.replyLabel)}</div>
         <div class="text">${esc(reply)}</div>
         <div class="by">— ${esc(state.sender || 'Prime Hay')}</div>
@@ -619,28 +644,28 @@ function buildReview(t, r) {
   return el;
 }
 
-function buildCta(t) {
+function buildCta(t, video) {
   const el = document.createElement('div');
-  el.className = 'story s-cta';
+  el.className = 'story s-cta' + (video ? ' video-mode' : '');
   const link = profile().reviewLink;
   el.innerHTML = `
-    ${chrome(t, false)}
+    ${chrome(t, !!video)}
     <div class="col">
-      <div class="from">
+      <div class="from" data-layer="1">
         ${state.photo ? `<div class="photo" style="background-image:url(${state.photo})"></div>` : ''}
         <div class="eyebrow">${esc(t.ctaEyebrow)}</div>
       </div>
-      <div class="headline">${esc(t.ctaHeadline)}</div>
-      <div class="body">${esc(t.ctaBody)}</div>
-      <div class="qr-card">
+      <div class="headline" data-layer="1">${esc(t.ctaHeadline)}</div>
+      <div class="body" data-layer="2">${esc(t.ctaBody)}</div>
+      <div class="qr-card" data-layer="3">
         ${link ? `<div class="qr">${qrSvg(link)}</div>` : `<div class="qr-empty">${esc(t.noLink)}</div>`}
         <div>
           <div class="qr-title">${esc(t.qrTitle)}</div>
           <div class="qr-sub"><span class="stars">★★★★★</span>${esc(t.qrSub)}</div>
         </div>
       </div>
-      <div class="pill">${esc(t.button)}</div>
-      <div class="signed">${signature(t)}</div>
+      <div class="pill" data-layer="4">${esc(t.button)}</div>
+      <div class="signed" data-layer="4">${signature(t)}</div>
     </div>`;
   return el;
 }
@@ -669,12 +694,15 @@ function fitQuotes(root) {
   });
 }
 
-function buildAll() {
+function buildAll(video = false) {
   const t = COPY[state.lang] || COPY.en;
   const reviews = state.reviews.filter(r => r.text.trim() || r.name.trim());
-  const stories = [{ label: 'Thank-you intro', el: buildIntro(t) }];
-  reviews.forEach(r => stories.push({ label: `Review · ${r.name || 'unnamed'}`, el: buildReview(t, r) }));
-  stories.push({ label: 'Ask for a review', el: buildCta(t) });
+  const stories = [{ label: 'Thank-you intro', kind: 'intro', seconds: 7, el: buildIntro(t, video) }];
+  reviews.forEach(r => {
+    const words = ((state.lang === 'en' && r.translation) || r.text).split(/\s+/).length;
+    stories.push({ label: `Review · ${r.name || 'unnamed'}`, kind: 'review', seconds: Math.round(7 + Math.min(8, words * 0.3)), el: buildReview(t, r, video) });
+  });
+  stories.push({ label: 'Ask for a review', kind: 'cta', seconds: 10, el: buildCta(t, video) });
   return stories;
 }
 
@@ -693,11 +721,18 @@ function render() {
     const meta = document.createElement('div');
     meta.className = 'meta';
     meta.innerHTML = `<span>${i + 1}. ${esc(s.label)}</span>`;
+    const btns = document.createElement('div');
+    btns.className = 'btns';
     const btn = document.createElement('button');
     btn.className = 'ghost';
     btn.textContent = 'PNG';
     btn.onclick = () => downloadOne(i);
-    meta.appendChild(btn);
+    const vbtn = document.createElement('button');
+    vbtn.className = 'ghost';
+    vbtn.textContent = 'Video';
+    vbtn.onclick = () => makeVideo(i);
+    btns.append(btn, vbtn);
+    meta.appendChild(btns);
     p.append(frame, meta);
     wrap.appendChild(p);
   });
@@ -768,6 +803,209 @@ async function downloadAll() {
   } finally {
     btn.disabled = false;
     btn.textContent = 'Download all (PNG)';
+  }
+}
+
+/* ---------- Video stories ----------
+   Each story is rendered as transparent PNG layers (one per data-layer group),
+   then composited on a canvas over the background footage and recorded with MediaRecorder. */
+
+const W = 1080, H = 1920, FPS = 30;
+let bgVideoUrl = '';
+
+function onVideoChange(input) {
+  const f = input.files[0];
+  if (!f) return;
+  if (bgVideoUrl) URL.revokeObjectURL(bgVideoUrl);
+  bgVideoUrl = URL.createObjectURL(f);
+  document.getElementById('bg-video-clear').style.display = '';
+}
+
+function clearVideo() {
+  if (bgVideoUrl) URL.revokeObjectURL(bgVideoUrl);
+  bgVideoUrl = '';
+  document.getElementById('bg-video').value = '';
+  document.getElementById('bg-video-clear').style.display = 'none';
+}
+
+// Instagram wants MP4; current Chrome and Safari can record it, older browsers fall back to WebM
+function pickMime() {
+  const types = ['video/mp4;codecs=avc1.640028', 'video/mp4;codecs=avc1.42E01E', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  return types.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || '';
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = src; });
+}
+
+async function renderLayers(i) {
+  const story = buildAll(true)[i];
+  const host = document.getElementById('export-host');
+  const node = story.el;
+  host.appendChild(node);
+  try {
+    fitQuotes(node);
+    if (fontEmbedCSS === null) fontEmbedCSS = await htmlToImage.getFontEmbedCSS(node);
+    const parts = [...node.querySelectorAll('[data-layer]')];
+    const ids = [...new Set(parts.map(el => el.dataset.layer))].sort((a, b) => a - b);
+    const layers = [];
+    for (const id of ids) {
+      parts.forEach(el => { el.style.visibility = el.dataset.layer === id ? 'visible' : 'hidden'; });
+      const url = await htmlToImage.toPng(node, { width: W, height: H, pixelRatio: 1, fontEmbedCSS });
+      layers.push(await loadImage(url));
+    }
+    return { layers, seconds: story.seconds, kind: story.kind };
+  } finally {
+    host.removeChild(node);
+  }
+}
+
+function drawCover(ctx, video, zoom) {
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (!vw || !vh) return;
+  const k = Math.max(W / vw, H / vh) * zoom;
+  const dw = vw * k, dh = vh * k;
+  ctx.drawImage(video, (W - dw) / 2, (H - dh) / 2, dw, dh);
+}
+
+// Fallback when no footage is uploaded: slow light drifting over forest, with floating hay dust
+const SPECKS = Array.from({ length: 70 }, (_, n) => {
+  const r = x => (Math.sin(n * 127.1 + x * 311.7) * 43758.5453) % 1;
+  return { x: Math.abs(r(1)) * W, y: Math.abs(r(2)) * H, s: 2 + Math.abs(r(3)) * 5, v: 12 + Math.abs(r(4)) * 30, p: Math.abs(r(5)) * 6.28 };
+});
+
+function drawFallback(ctx, t) {
+  ctx.fillStyle = '#0C2A02';
+  ctx.fillRect(0, 0, W, H);
+  const glow = (x, y, r, color) => {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, color);
+    g.addColorStop(1, 'rgba(12,42,2,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  };
+  glow(540 + 320 * Math.sin(t * 0.35), 700 + 260 * Math.cos(t * 0.27), 1000, 'rgba(216,192,129,.22)');
+  glow(300 + 200 * Math.cos(t * 0.22), 1500 + 200 * Math.sin(t * 0.31), 900, 'rgba(107,138,113,.35)');
+  ctx.fillStyle = 'rgba(216,192,129,.35)';
+  SPECKS.forEach(p => {
+    const y = ((p.y - t * p.v) % H + H) % H;
+    const x = p.x + 18 * Math.sin(t * 0.8 + p.p);
+    ctx.beginPath();
+    ctx.ellipse(x, y, p.s, p.s * 0.45, p.p + t * 0.3, 0, 6.283);
+    ctx.fill();
+  });
+}
+
+function drawScrim(ctx, kind, hasVideo) {
+  // Darker behind the text blocks so any footage stays readable
+  const a = hasVideo ? 1 : 0.35;
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, `rgba(12,42,2,${0.75 * a})`);
+  g.addColorStop(0.3, `rgba(12,42,2,${(kind === 'intro' ? 0.5 : 0.62) * a})`);
+  g.addColorStop(0.65, `rgba(12,42,2,${0.66 * a})`);
+  g.addColorStop(1, `rgba(12,42,2,${0.9 * a})`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
+const easeOut = p => 1 - Math.pow(1 - p, 3);
+
+function drawFrame(ctx, t, job, video) {
+  if (video) drawCover(ctx, video, 1.04 + 0.08 * (t / job.seconds));
+  else drawFallback(ctx, t);
+  drawScrim(ctx, job.kind, !!video);
+  job.layers.forEach((img, k) => {
+    const p = easeOut(Math.min(1, Math.max(0, (t - (0.2 + k * 0.6)) / 0.9)));
+    if (p <= 0) return;
+    ctx.globalAlpha = p;
+    ctx.drawImage(img, 0, (1 - p) * 60);
+    ctx.globalAlpha = 1;
+  });
+}
+
+async function startVideo(i) {
+  if (!bgVideoUrl) return null;
+  const v = document.createElement('video');
+  v.src = bgVideoUrl;
+  v.muted = true;
+  v.loop = true;
+  v.playsInline = true;
+  await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = () => rej(new Error('This video format cannot be played in this browser')); });
+  // Each story starts at a different point in the clip so they don't all look the same
+  const span = Math.max(0, v.duration - 1);
+  v.currentTime = span ? (i * 4.7) % span : 0;
+  await new Promise(res => { v.onseeked = res; setTimeout(res, 1500); });
+  await v.play();
+  return v;
+}
+
+async function recordStory(i, onProgress) {
+  const mime = pickMime();
+  if (!mime || !HTMLCanvasElement.prototype.captureStream) throw new Error('This browser cannot record video; use the latest Chrome or Safari');
+  const job = await renderLayers(i);
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const video = await startVideo(i);
+  drawFrame(ctx, 0, job, video);
+  const rec = new MediaRecorder(canvas.captureStream(FPS), { mimeType: mime, videoBitsPerSecond: 10_000_000 });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  const stopped = new Promise(res => (rec.onstop = res));
+  rec.start(250);
+  const t0 = performance.now();
+  await new Promise(res => {
+    const tick = () => {
+      const t = (performance.now() - t0) / 1000;
+      drawFrame(ctx, Math.min(t, job.seconds), job, video);
+      onProgress(Math.min(1, t / job.seconds));
+      if (t >= job.seconds) res();
+      else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  rec.stop();
+  await stopped;
+  if (video) video.pause();
+  return { blob: new Blob(chunks, { type: mime.split(';')[0] }), ext: mime.startsWith('video/mp4') ? 'mp4' : 'webm' };
+}
+
+async function makeVideo(i) {
+  const frame = document.querySelectorAll('#previews .frame')[i];
+  const bar = document.createElement('div');
+  bar.className = 'progress';
+  frame.appendChild(bar);
+  try {
+    const { blob, ext } = await recordStory(i, p => (bar.style.width = (p * 100).toFixed(1) + '%'));
+    const url = URL.createObjectURL(blob);
+    frame.querySelectorAll('video').forEach(v => v.remove());
+    const player = document.createElement('video');
+    Object.assign(player, { src: url, muted: true, loop: true, autoplay: true, playsInline: true });
+    frame.appendChild(player);
+    triggerDownload(url, fileName(i).replace(/\.png$/, '.' + ext));
+    if (!pickMime().includes('avc1')) showStatus('This browser cannot record H.264, which Instagram expects. For posting, record in the latest Chrome or Safari.', false);
+    return true;
+  } catch (e) {
+    showStatus('Video failed: ' + e.message, false);
+    return false;
+  } finally {
+    bar.remove();
+  }
+}
+
+async function downloadAllVideos() {
+  const btn = document.getElementById('download-all-video');
+  btn.disabled = true;
+  try {
+    for (let i = 0; i < current.length; i++) {
+      btn.textContent = `Recording ${i + 1}/${current.length}…`;
+      if (!(await makeVideo(i))) return;
+    }
+    showStatus(`✓ ${current.length} video stories downloaded (1080×1920)`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Make all videos';
   }
 }
 
