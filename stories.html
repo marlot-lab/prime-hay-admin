@@ -231,7 +231,7 @@
       <div class="row">
         <div>
           <label for="sender">Signed by</label>
-          <input type="text" id="sender" oninput="save(); render()">
+          <input type="text" id="sender" placeholder="The Prime Hay team" oninput="save(); render()">
         </div>
         <div>
           <label>Your photo</label>
@@ -267,7 +267,7 @@
 
       <label for="review-link">Google review link</label>
       <input type="url" id="review-link" placeholder="https://g.page/r/…/review" oninput="save(); render()">
-      <p class="hint">Google Business Profile → <b>Ask for reviews</b> → copy the link. It becomes the QR code; paste the same link in an Instagram link sticker on the last story.</p>
+      <p class="hint">Google Business Profile → <b>Ask for reviews</b> → copy the link. It becomes the QR code; add the same link yourself as an Instagram link sticker on the last story.</p>
 
       <div class="section-header" style="margin: 1.5rem 0 0.5rem;">
         <h2 style="font-size: 15px;">Reviews</h2>
@@ -294,7 +294,7 @@
 <div id="export-host"></div>
 
 <script>
-const STORAGE_KEY = 'primeHayReviewStories.v3';
+const STORAGE_KEY = 'primeHayReviewStories.v4';
 
 const COPY = {
   en: {
@@ -399,7 +399,7 @@ const COPY = {
 // Seeded with the review already used in the Pavo Standard campaign; add the rest from Google.
 const DEFAULTS = {
   lang: 'en',
-  sender: 'Marlot',
+  sender: '',
   photo: '',
   profile: 'algarve',
   // Per Google Maps, 28 Sep 2026
@@ -583,7 +583,10 @@ function firstName(name) {
 
 function rating(t) { return (profile().rating || '5,0').replace(/[.,]/, t.decimal); }
 
-function signature(t) { return `— ${esc(state.sender || 'Prime Hay')} & ${esc(t.team)}`; }
+function teamName(t) { return t.team.charAt(0).toUpperCase() + t.team.slice(1); }
+
+// Signed by the team; a name is only added when one is filled in
+function signature(t) { return state.sender ? `— ${esc(state.sender)} & ${esc(t.team)}` : `— ${esc(teamName(t))}`; }
 
 // Official master files only (brandbook: never retype the wordmark or redraw the emblem)
 function logo(kind) {
@@ -656,7 +659,7 @@ function buildReview(t, r, video) {
       <div class="reply" data-layer="3">
         <div class="label">${esc(t.replyLabel)}</div>
         <div class="text">${esc(reply)}</div>
-        <div class="by">— ${esc(state.sender || 'Prime Hay')}</div>
+        <div class="by">— ${esc(state.sender || teamName(t))}</div>
       </div>
     </div>`;
   return el;
@@ -682,7 +685,6 @@ function buildCta(t, video) {
           <div class="qr-sub"><span class="stars">★★★★★</span>${esc(t.qrSub)}</div>
         </div>
       </div>
-      <div class="pill" data-layer="4">${esc(t.button)}</div>
       <div class="signed" data-layer="4">${signature(t)}</div>
     </div>`;
   return el;
