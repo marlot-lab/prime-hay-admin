@@ -307,6 +307,7 @@ const COPY = {
     onGoogle: 'on Google',
     proof: 'Trusted by 450+ stables across Portugal & Spain',
     googleReview: 'Google review',
+    customer: 'Prime Hay customer',
     translated: 'Translated from the original review',
     replyLabel: 'Our reply',
     reply: name => `Thank you${name ? ', ' + name : ''}! That's exactly what we love to hear.`,
@@ -330,6 +331,7 @@ const COPY = {
     onGoogle: 'no Google',
     proof: 'A escolha de mais de 450 cavalariças em Portugal e Espanha',
     googleReview: 'Avaliação Google',
+    customer: 'Cliente Prime Hay',
     translated: 'Traduzido da avaliação original',
     replyLabel: 'A nossa resposta',
     reply: name => `Obrigado${name ? ', ' + name : ''}! É exatamente isto que gostamos de ouvir.`,
@@ -353,6 +355,7 @@ const COPY = {
     onGoogle: 'op Google',
     proof: 'Gekozen door 450+ stallen in Portugal en Spanje',
     googleReview: 'Google-review',
+    customer: 'Klant van Prime Hay',
     translated: 'Vertaald uit de oorspronkelijke review',
     replyLabel: 'Ons antwoord',
     reply: name => `Dank je wel${name ? ', ' + name : ''}! Precies wat we graag horen.`,
@@ -376,6 +379,7 @@ const COPY = {
     onGoogle: 'en Google',
     proof: 'La elección de más de 450 cuadras en Portugal y España',
     googleReview: 'Reseña de Google',
+    customer: 'Cliente de Prime Hay',
     translated: 'Traducido de la reseña original',
     replyLabel: 'Nuestra respuesta',
     reply: name => `¡Gracias${name ? ', ' + name : ''}! Es justo lo que nos encanta oír.`,
@@ -626,7 +630,7 @@ function buildIntro(t, video) {
   return el;
 }
 
-function buildReview(t, r, video, pos = '') {
+function buildReview(t, r, video) {
   const el = document.createElement('div');
   el.className = 'story s-review' + (video ? ' video-mode' : '');
   const useTranslation = state.lang === 'en' && r.translation && r.translation.trim();
@@ -634,7 +638,7 @@ function buildReview(t, r, video, pos = '') {
   const stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
   const reply = (r.reply && r.reply.trim()) || t.reply(firstName(r.name));
   el.innerHTML = `
-    ${chrome(t, true, pos)}
+    ${chrome(t, true, t.googleReview)}
     <div class="col">
       <div class="qbox" data-layer="1">
         <div class="qmark">“</div>
@@ -646,7 +650,7 @@ function buildReview(t, r, video, pos = '') {
         <div class="avatar" style="${r.photo ? `background-image:url(${r.photo})` : ''}">${r.photo ? '' : esc(initials(r.name))}</div>
         <div>
           <div class="name">${esc(r.name || '—')}</div>
-          <div class="meta-line">${esc(t.googleReview)}</div>
+          <div class="meta-line">${esc(t.customer)}</div>
         </div>
       </div>
       <div class="reply" data-layer="3">
@@ -712,9 +716,9 @@ function buildAll(video = false) {
   const t = COPY[state.lang] || COPY.en;
   const reviews = state.reviews.filter(r => r.text.trim() || r.name.trim());
   const stories = [{ label: 'Thank-you intro', kind: 'intro', seconds: 7, el: buildIntro(t, video) }];
-  reviews.forEach((r, k) => {
+  reviews.forEach(r => {
     const words = ((state.lang === 'en' && r.translation) || r.text).split(/\s+/).length;
-    stories.push({ label: `Review · ${r.name || 'unnamed'}`, kind: 'review', seconds: Math.round(7 + Math.min(8, words * 0.3)), el: buildReview(t, r, video, `${k + 1} / ${reviews.length}`) });
+    stories.push({ label: `Review · ${r.name || 'unnamed'}`, kind: 'review', seconds: Math.round(7 + Math.min(8, words * 0.3)), el: buildReview(t, r, video) });
   });
   stories.push({ label: 'Ask for a review', kind: 'cta', seconds: 10, el: buildCta(t, video) });
   return stories;
