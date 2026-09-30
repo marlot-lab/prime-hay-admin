@@ -273,7 +273,7 @@
         <h2 style="font-size: 15px;">Reviews</h2>
         <button class="ghost" onclick="addReview()">+ Add review</button>
       </div>
-      <p class="hint">Paste the exact text from Google. Add an English translation if the review is in another language; it is used on the English stories and marked as translated. Leave the reply empty to use a standard thank-you.</p>
+      <p class="hint">Paste the exact text from Google. Add an English translation if the review is in another language; it is used on the English stories and marked as translated. Our reply is only shown when you write one.</p>
       <div id="review-list"></div>
     </div>
 
@@ -536,7 +536,7 @@ function renderReviewList() {
       </div>
       <textarea placeholder="Review text, exactly as on Google" data-field="text"></textarea>
       <textarea placeholder="English translation (optional)" data-field="translation" style="min-height:52px"></textarea>
-      <textarea placeholder="Your reply (optional, a standard thank-you is used otherwise)" data-field="reply" style="min-height:52px"></textarea>
+      <textarea placeholder="Our reply (optional, shown only when filled in)" data-field="reply" style="min-height:52px"></textarea>
       <label style="font-weight:400;color:#5b6270">Photo of their horse (optional)</label>
       <div class="photo-field"></div>`;
     ['name', 'stars', 'text', 'translation', 'reply'].forEach(f => {
@@ -639,7 +639,8 @@ function buildReview(t, r, video) {
   const useTranslation = state.lang === 'en' && r.translation && r.translation.trim();
   const quote = useTranslation ? r.translation : r.text;
   const stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
-  const reply = (r.reply && r.reply.trim()) || t.reply(firstName(r.name));
+  // Our reply is optional and only shown when one is written
+  const reply = r.reply && r.reply.trim();
   el.innerHTML = `
     ${chrome(t, true, t.googleReview)}
     <div class="col">
@@ -656,11 +657,11 @@ function buildReview(t, r, video) {
           <div class="meta-line">${esc(t.customer)}</div>
         </div>
       </div>
-      <div class="reply" data-layer="3">
+      ${reply ? `<div class="reply" data-layer="3">
         <div class="label">${esc(t.replyLabel)}</div>
         <div class="text">${esc(reply)}</div>
         <div class="by">— ${esc(state.sender || teamName(t))}</div>
-      </div>
+      </div>` : ''}
     </div>`;
   return el;
 }
