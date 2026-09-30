@@ -173,10 +173,10 @@
 
     /* 3. Ask for a review (CTA template, cream) */
     .s-cta { background: var(--cream); color: var(--forest); }
-    .s-cta .col { top: 500px; bottom: 250px; justify-content: space-between; }
+    .s-cta .col { top: 450px; bottom: 250px; justify-content: space-between; }
     .s-cta .from { display: flex; align-items: center; gap: 24px; }
     .s-cta .from .photo { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--gold); flex: none; }
-    .s-cta .headline { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 100px; line-height: 1.02; letter-spacing: -.02em; }
+    .s-cta .headline { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 88px; line-height: 1.02; letter-spacing: -.02em; }
     .s-cta .body { font-size: 38px; line-height: 1.5; color: var(--charcoal); }
     .s-cta .qr-card { background: #fff; border: 2px solid var(--beige); border-radius: 32px; padding: 36px; display: flex; gap: 38px; align-items: center; text-align: left; }
     .s-cta .qr { width: 260px; height: 260px; flex: none; }
@@ -189,6 +189,13 @@
       align-self: center; background: var(--forest); color: var(--cream); border-radius: 999px; padding: 30px 56px;
       font-family: Montserrat, sans-serif; font-weight: 800; font-size: 36px;
     }
+    .s-cta .tap { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+    .s-cta .tap-title { font-family: Montserrat, sans-serif; font-weight: 800; font-size: 46px; line-height: 1.1; }
+    .s-cta .tap-sub { font-size: 32px; opacity: .85; }
+    .s-cta .arrow { width: 132px; height: 132px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; }
+    .s-cta .arrow svg { width: 60px; height: 60px; }
+    /* Left empty on purpose: this is where the Instagram link sticker goes */
+    .s-cta .sticker-space { height: 210px; flex: none; }
     .s-cta .signed { color: var(--forest); }
     .s-cta .tagline { color: var(--gold); }
 
@@ -267,7 +274,10 @@
 
       <label for="review-link">Google review link</label>
       <input type="url" id="review-link" placeholder="https://g.page/r/…/review" oninput="save(); render()">
-      <p class="hint">Google Business Profile → <b>Ask for reviews</b> → copy the link. It becomes the QR code; add the same link yourself as an Instagram link sticker on the last story.</p>
+      <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-bottom:12px;">
+        <input type="checkbox" id="show-qr" onchange="save(); render()"> QR code (for print)
+      </label>
+      <p class="hint">Google Business Profile → <b>Ask for reviews</b> → copy the link. Add it yourself as an Instagram link sticker below the arrow on the last story. Tick <b>QR code</b> only for printed versions: people can't scan a code on the phone they are watching it on.</p>
 
       <div class="section-header" style="margin: 1.5rem 0 0.5rem;">
         <h2 style="font-size: 15px;">Reviews</h2>
@@ -294,7 +304,7 @@
 <div id="export-host"></div>
 
 <script>
-const STORAGE_KEY = 'primeHayReviewStories.v4';
+const STORAGE_KEY = 'primeHayReviewStories.v5';
 
 const COPY = {
   en: {
@@ -316,6 +326,8 @@ const COPY = {
     ctaHeadline: 'Share your experience on Google.',
     ctaBody: 'Your review helps other horse owners choose the right hay. It only takes a minute, and we read every one.',
     qrTitle: 'Scan to write a review',
+    tapTitle: 'Tap the link below',
+    tapSub: 'and leave your stars on Google',
     qrSub: 'Point your camera at the code',
     button: 'Tap the link ↓',
     noLink: 'Add your Google review link',
@@ -340,6 +352,8 @@ const COPY = {
     ctaHeadline: 'Partilhe a sua experiência no Google.',
     ctaBody: 'A sua avaliação ajuda outros donos de cavalos a escolher o feno certo. Demora só um minuto e lemos todas.',
     qrTitle: 'Digitalize para avaliar',
+    tapTitle: 'Toque no link abaixo',
+    tapSub: 'e deixe as suas estrelas no Google',
     qrSub: 'Aponte a câmara ao código',
     button: 'Toque no link ↓',
     noLink: 'Adicione o link de avaliação Google',
@@ -364,6 +378,8 @@ const COPY = {
     ctaHeadline: 'Deel je ervaring op Google.',
     ctaBody: 'Jouw review helpt andere paardeneigenaren het juiste hooi te kiezen. Het kost maar een minuut, en we lezen ze allemaal.',
     qrTitle: 'Scan om een review te schrijven',
+    tapTitle: 'Tik op de link hieronder',
+    tapSub: 'en geef ons je sterren op Google',
     qrSub: 'Richt je camera op de code',
     button: 'Tik op de link ↓',
     noLink: 'Voeg je Google-reviewlink toe',
@@ -388,6 +404,8 @@ const COPY = {
     ctaHeadline: 'Comparte tu experiencia en Google.',
     ctaBody: 'Tu reseña ayuda a otros propietarios de caballos a elegir el heno adecuado. Solo lleva un minuto, y las leemos todas.',
     qrTitle: 'Escanea para escribir una reseña',
+    tapTitle: 'Toca el enlace de abajo',
+    tapSub: 'y deja tus estrellas en Google',
     qrSub: 'Apunta la cámara al código',
     button: 'Toca el enlace ↓',
     noLink: 'Añade tu enlace de reseñas de Google',
@@ -400,6 +418,8 @@ const COPY = {
 const DEFAULTS = {
   lang: 'en',
   sender: '',
+  // A QR code can't be scanned on the phone showing the story, so it is only for printed versions
+  showQr: false,
   photo: '',
   profile: 'algarve',
   // Per Google Maps, 28 Sep 2026
@@ -445,6 +465,7 @@ function persist() {
 function save() {
   state.lang = document.getElementById('lang').value;
   state.sender = document.getElementById('sender').value;
+  state.showQr = document.getElementById('show-qr').checked;
   const prof = state.profiles[state.profile];
   prof.rating = document.getElementById('rating').value;
   prof.count = document.getElementById('count').value;
@@ -512,6 +533,7 @@ function photoField(host, get, set) {
 function fillForm() {
   document.getElementById('lang').value = state.lang;
   document.getElementById('sender').value = state.sender;
+  document.getElementById('show-qr').checked = !!state.showQr;
   document.getElementById('profile').value = state.profile;
   document.getElementById('rating').value = profile().rating;
   document.getElementById('count').value = profile().count;
@@ -679,14 +701,19 @@ function buildCta(t, video) {
       </div>
       <div class="headline" data-layer="1">${esc(t.ctaHeadline)}</div>
       <div class="body" data-layer="2">${esc(t.ctaBody)}</div>
-      <div class="qr-card" data-layer="3">
+      ${state.showQr ? `<div class="qr-card" data-layer="3">
         ${link ? `<div class="qr">${qrSvg(link)}</div>` : `<div class="qr-empty">${esc(t.noLink)}</div>`}
         <div>
           <div class="qr-title">${esc(t.qrTitle)}</div>
           <div class="qr-sub"><span class="stars">★★★★★</span>${esc(t.qrSub)}</div>
         </div>
+      </div>` : `<div class="tap" data-layer="3">
+        <div class="tap-title">${esc(t.tapTitle)}</div>
+        <div class="tap-sub">${esc(t.tapSub)}</div>
       </div>
-      <div class="signed" data-layer="4">${signature(t)}</div>
+      <div class="arrow" data-layer="4" data-bounce><svg viewBox="0 0 24 24" fill="none" stroke="#0C2A02" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M5 12l7 7 7-7"/></svg></div>
+      <div class="sticker-space"></div>`}
+      <div class="signed" data-layer="5">${signature(t)}</div>
     </div>`;
   return el;
 }
@@ -875,7 +902,9 @@ async function renderLayers(i) {
       const url = await htmlToImage.toPng(node, { width: W, height: H, pixelRatio: 1, fontEmbedCSS });
       layers.push(await loadImage(url));
     }
-    return { layers, seconds: story.seconds, kind: story.kind, index: i };
+    const bouncer = node.querySelector('[data-bounce]');
+    const bounceLayer = bouncer ? ids.indexOf(bouncer.dataset.layer) : -1;
+    return { layers, seconds: story.seconds, kind: story.kind, index: i, bounceLayer };
   } finally {
     host.removeChild(node);
   }
@@ -973,10 +1002,13 @@ function drawFrame(ctx, t, job, video) {
   else drawHay(ctx, t, job);
   drawScrim(ctx, job.kind, true);
   job.layers.forEach((img, k) => {
-    const p = easeOut(Math.min(1, Math.max(0, (t - (0.2 + k * 0.6)) / 0.9)));
+    const start = 0.2 + k * 0.6;
+    const p = easeOut(Math.min(1, Math.max(0, (t - start) / 0.9)));
     if (p <= 0) return;
+    // The arrow keeps nudging down towards the link sticker once it has landed
+    const bounce = k === job.bounceLayer && t > start + 0.9 ? Math.abs(Math.sin((t - start - 0.9) * 3)) * 22 : 0;
     ctx.globalAlpha = p;
-    ctx.drawImage(img, 0, (1 - p) * 60);
+    ctx.drawImage(img, 0, (1 - p) * 60 + bounce);
     ctx.globalAlpha = 1;
   });
 }
