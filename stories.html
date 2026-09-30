@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prime Hay Review Stories</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: #f5f5f5;
+      color: #1c1f24;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .card {
+      background: white;
+      border: 1px solid #e3e6ea;
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .header {
+      background: white;
+      border-bottom: 1px solid #e3e6ea;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: -2rem -2rem 2rem;
+    }
+    .header h1 { margin: 0; font-size: 20px; font-weight: 500; }
+    .header a { color: #8a5a2b; font-size: 13px; text-decoration: none; font-weight: 500; }
+    button {
+      background: #8a5a2b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+    }
+    button:hover { background: #6d4820; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button.ghost { background: white; color: #8a5a2b; border: 1px solid #e3e6ea; }
+    button.ghost:hover { background: #fafafa; }
+    input[type="text"], input[type="url"], input[type="number"], select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e3e6ea;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      margin-bottom: 12px;
+      background: white;
+    }
+    textarea { resize: vertical; min-height: 72px; }
+    label { font-size: 13px; font-weight: 500; display: block; margin-bottom: 6px; }
+    .hint { font-size: 12px; color: #5b6270; margin: -6px 0 12px; line-height: 1.5; }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-header h2 { margin: 0; font-size: 18px; font-weight: 500; }
+    .layout { display: grid; grid-template-columns: 380px 1fr; gap: 2rem; align-items: start; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .review-item { border-top: 1px solid #e3e6ea; padding-top: 12px; margin-top: 4px; }
+    .review-item .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .review-item .top span { font-size: 12px; color: #5b6270; font-weight: 500; }
+    .review-item button { padding: 4px 10px; font-size: 12px; }
+    .photo-field { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .photo-field .thumb { width: 44px; height: 44px; border-radius: 6px; background: #f0ede6 center/cover no-repeat; border: 1px solid #e3e6ea; flex: none; }
+    .photo-field input[type="file"] { font-size: 12px; flex: 1; min-width: 0; }
+    .photo-field button { padding: 4px 10px; font-size: 12px; }
+    .status {
+      margin-top: 1rem;
+      padding: 12px;
+      border-radius: 6px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      font-size: 13px;
+      display: none;
+    }
+
+    /* Preview grid: each story is built at 1080x1920 and scaled down */
+    .previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.5rem; }
+    .preview { display: flex; flex-direction: column; gap: 8px; }
+    .preview .frame {
+      position: relative;
+      width: 270px; height: 480px; overflow: hidden; border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.08);
+    }
+    .preview .frame > .story { transform: scale(.25); transform-origin: top left; }
+    .preview .meta { display: flex; justify-content: space-between; align-items: center; width: 270px; }
+    .preview .meta span { font-size: 12px; color: #5b6270; }
+    .preview .meta button { padding: 6px 12px; font-size: 12px; }
+    .preview .meta .btns { display: flex; gap: 6px; }
+    .preview .frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; }
+    .preview .progress { position: absolute; left: 0; bottom: 0; height: 4px; background: #BC993F; width: 0; transition: width .2s linear; }
+
+    /* ---------- Story design, per the Prime Hay Brandbook (Living Edition) ----------
+       Social visual system: Forest backgrounds, Montserrat 700–900 headlines, Inter body,
+       Gold only as accent, "It starts with real forage." footer on every post,
+       and the faint wheat-stalk line drawing. Balance ≈70% cream · 20% forest · 7% gold. */
+    .story {
+      --forest: #113602;
+      --forest-dark: #0C2A02;
+      --gold: #BC993F;
+      --soft-gold: #D8C081;
+      --sage: #6B8A71;
+      --cream: #FBFAF6;
+      --beige: #F4F1EA;
+      --charcoal: #2B2B2B;
+      width: 1080px; height: 1920px; position: relative; overflow: hidden;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: var(--forest); color: var(--cream);
+    }
+    .story .mont { font-family: Montserrat, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
+    .story .logo { position: absolute; left: 90px; top: 150px; width: 190px; display: block; }
+    .story .tag-pill {
+      position: absolute; right: 90px; top: 178px; background: var(--gold); color: var(--forest-dark); border-radius: 999px; padding: 14px 30px;
+      font-family: Montserrat, sans-serif; font-weight: 800; font-size: 24px; letter-spacing: .14em; text-transform: uppercase;
+    }
+    .story .wheat { position: absolute; right: 70px; bottom: 0; width: 260px; height: 760px; }
+    .story .tagline {
+      position: absolute; left: 0; right: 0; text-align: center; bottom: 150px;
+      font-family: Montserrat, sans-serif; font-weight: 800; font-size: 26px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold);
+    }
+    .story .col { position: absolute; left: 90px; right: 90px; display: flex; flex-direction: column; align-items: center; text-align: center; text-wrap: balance; }
+    .story .eyebrow { font-family: Montserrat, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+    .story .stars { color: var(--gold); letter-spacing: .14em; line-height: 1; }
+    .story .signed { font-size: 36px; color: var(--soft-gold); font-weight: 500; }
+    .story .photo { background: center/cover no-repeat; }
+
+    /* 1. Thank-you intro (Brand welcome + Stat callout) */
+    .s-intro .col { top: 560px; bottom: 260px; justify-content: space-between; }
+    .s-intro .headline { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 104px; line-height: 1.02; letter-spacing: -.02em; margin-top: 30px; }
+    .s-intro .sub { font-size: 38px; line-height: 1.45; color: var(--soft-gold); margin: 32px auto 0; max-width: 820px; }
+    .s-intro .score { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 240px; line-height: .9; letter-spacing: -.03em; color: var(--gold); }
+    .s-intro .score-row { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 20px; font-size: 34px; color: var(--cream); }
+    .s-intro .score-row .stars { font-size: 46px; }
+    .s-intro .proof { font-size: 30px; color: rgba(251,250,246,.7); margin-top: 18px; }
+    /* Community / UGC variant: full-bleed photo fading into forest */
+    .s-intro .bleed { position: absolute; left: 0; right: 0; top: 0; height: 1180px; }
+    .s-intro .bleed::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,42,2,.55) 0%, rgba(12,42,2,0) 30%, rgba(17,54,2,0) 55%, var(--forest) 100%); }
+    .s-intro.has-photo .col { top: 900px; }
+    .s-intro.has-photo .headline { font-size: 88px; }
+    .s-intro .score-inline { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 96px; line-height: 1; color: var(--gold); }
+
+    /* 2. Review (Testimonial template) */
+    .s-review .col { top: 480px; bottom: 250px; justify-content: space-between; }
+    .s-review .qbox { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .s-review .qmark { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 200px; line-height: .7; color: var(--gold); height: 110px; }
+    .s-review .review-stars { font-size: 56px; margin: 26px 0 34px; }
+    .s-review .quote { font-family: Montserrat, sans-serif; font-weight: 800; line-height: 1.16; letter-spacing: -.01em; color: var(--cream); }
+    .s-review .translated { font-size: 26px; color: rgba(251,250,246,.6); margin-top: 22px; }
+    .s-review .who { display: flex; align-items: center; gap: 26px; margin: 34px 0; text-align: left; }
+    .s-review .avatar { width: 116px; height: 116px; border-radius: 50%; border: 3px solid var(--gold); background: var(--forest-dark) center/cover no-repeat; color: var(--soft-gold); display: flex; align-items: center; justify-content: center; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 44px; flex: none; }
+    .s-review .name { font-family: Montserrat, sans-serif; font-weight: 800; font-size: 38px; color: var(--cream); }
+    .s-review .meta-line { font-size: 30px; color: var(--soft-gold); margin-top: 6px; }
+    .s-review .reply { background: var(--beige); color: var(--forest); border-radius: 32px; padding: 38px 44px 34px; text-wrap: pretty; width: 100%; }
+    .s-review .reply .label { font-family: Montserrat, sans-serif; font-weight: 800; font-size: 24px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+    .s-review .reply .text { font-size: 36px; line-height: 1.42; color: var(--charcoal); margin-top: 12px; }
+    .s-review .reply .by { font-family: Montserrat, sans-serif; font-weight: 800; font-size: 32px; color: var(--forest); margin-top: 14px; }
+
+    /* 3. Ask for a review (CTA template, cream) */
+    .s-cta { background: var(--cream); color: var(--forest); }
+    .s-cta .col { top: 450px; bottom: 250px; justify-content: space-between; }
+    .s-cta .from { display: flex; align-items: center; gap: 24px; }
+    .s-cta .from .photo { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--gold); flex: none; }
+    .s-cta .headline { font-family: Montserrat, sans-serif; font-weight: 900; font-size: 88px; line-height: 1.02; letter-spacing: -.02em; }
+    .s-cta .body { font-size: 38px; line-height: 1.5; color: var(--charcoal); }
+    .s-cta .qr-card { background: #fff; border: 2px solid var(--beige); border-radius: 32px; padding: 36px; display: flex; gap: 38px; align-items: center; text-align: left; }
+    .s-cta .qr { width: 260px; height: 260px; flex: none; }
+    .s-cta .qr svg { width: 100%; height: 100%; display: block; }
+    .s-cta .qr-empty { width: 260px; height: 260px; border: 4px dashed var(--gold); border-radius: 18px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 24px; color: var(--charcoal); padding: 20px; flex: none; }
+    .s-cta .qr-title { font-family: Montserrat, sans-serif; font-weight: 800; font-size: 44px; line-height: 1.1; color: var(--forest); }
+    .s-cta .qr-sub { font-size: 30px; color: var(--charcoal); margin-top: 14px; }
+    .s-cta .qr-sub .stars { font-size: 34px; display: block; margin-bottom: 14px; }
+    .s-cta .pill {
+      align-self: center; background: var(--forest); color: var(--cream); border-radius: 999px; padding: 30px 56px;
+      font-family: Montserrat, sans-serif; font-weight: 800; font-size: 36px;
+    }
+    .s-cta .tap { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+    .s-cta .tap-title { font-family: Montserrat, sans-serif; font-weight: 800; font-size: 46px; line-height: 1.1; }
+    .s-cta .tap-sub { font-size: 32px; opacity: .85; }
+    .s-cta .arrow { width: 132px; height: 132px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; }
+    .s-cta .arrow svg { width: 60px; height: 60px; }
+    /* Left empty on purpose: this is where the Instagram link sticker goes */
+    .s-cta .sticker-space { height: 210px; flex: none; }
+    .s-cta .signed { color: var(--forest); }
+    .s-cta .tagline { color: var(--gold); }
+
+    /* Video mode: the story is rendered as transparent layers over moving footage */
+    .story.video-mode { background: transparent; }
+    .story.video-mode .bleed { display: none; }
+    .s-cta.video-mode { color: var(--cream); }
+    .s-cta.video-mode .body { color: rgba(251,250,246,.9); }
+    .s-cta.video-mode .signed { color: var(--soft-gold); }
+    .s-cta.video-mode .pill { background: var(--soft-gold); color: var(--forest); }
+    .s-cta.video-mode .qr-card { border-color: transparent; }
+
+    /* Hidden render host keeps full-size stories out of layout while exporting */
+    #export-host { position: fixed; left: -99999px; top: 0; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Prime Hay Back Office · Review stories</h1>
+    <a href="index.html">← Back to invoices</a>
+  </div>
+
+  <div class="layout">
+    <div class="card">
+      <div class="section-header" style="margin-bottom: 1rem;">
+        <h2>Content</h2>
+        <button class="ghost" onclick="resetDefaults()">Reset</button>
+      </div>
+
+      <label for="lang">Story language</label>
+      <select id="lang" onchange="onLangChange()">
+        <option value="en">English</option>
+        <option value="pt">Português</option>
+        <option value="nl">Nederlands</option>
+        <option value="es">Español</option>
+      </select>
+
+      <div class="row">
+        <div>
+          <label for="sender">Signed by</label>
+          <input type="text" id="sender" placeholder="The Prime Hay team" oninput="save(); render()">
+        </div>
+        <div>
+          <label>Your photo</label>
+          <div class="photo-field" id="main-photo-field"></div>
+        </div>
+      </div>
+      <p class="hint">A photo of you, your horses or the hay (real stable photography, per the brandbook) makes the first and last story personal. It stays in this browser only.</p>
+
+      <label for="bg-video">Background video (optional)</label>
+      <div class="photo-field">
+        <input type="file" id="bg-video" accept="video/*" onchange="onVideoChange(this)">
+        <button class="ghost" type="button" id="bg-video-clear" style="display:none" onclick="clearVideo()">Remove</button>
+      </div>
+      <p class="hint">For the video stories: 10–20 seconds of your own footage (the yard, hay being placed, horses eating) works best. Each story uses a different part of the clip. Without a video, a slow-moving background in brand colours is used. Keep this tab open and visible while a video is being recorded.</p>
+
+      <label for="profile">Google profile</label>
+      <select id="profile" onchange="onProfileChange()">
+        <option value="algarve">Prime Hay Portugal ALGARVE</option>
+        <option value="ribatejo">Prime Hay Portugal RIBATEJO</option>
+      </select>
+      <p class="hint">Each profile keeps its own rating, review count and review link. Most customers are in the Algarve, so that profile is the default. The location is not shown on the stories.</p>
+
+      <div class="row">
+        <div>
+          <label for="rating">Google rating</label>
+          <input type="text" id="rating" oninput="save(); render()">
+        </div>
+        <div>
+          <label for="count">Number of reviews</label>
+          <input type="number" id="count" min="1" oninput="save(); render()">
+        </div>
+      </div>
+
+      <label for="review-link">Google review link</label>
+      <input type="url" id="review-link" placeholder="https://g.page/r/…/review" oninput="save(); render()">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:400; margin-bottom:12px;">
+        <input type="checkbox" id="show-qr" onchange="save(); render()"> QR code (for print)
+      </label>
+      <p class="hint">Google Business Profile → <b>Ask for reviews</b> → copy the link. Add it yourself as an Instagram link sticker below the arrow on the last story. Tick <b>QR code</b> only for printed versions: people can't scan a code on the phone they are watching it on.</p>
+
+      <div class="section-header" style="margin: 1.5rem 0 0.5rem;">
+        <h2 style="font-size: 15px;">Reviews</h2>
+        <button class="ghost" onclick="addReview()">+ Add review</button>
+      </div>
+      <p class="hint">Paste the exact text from Google. Add an English translation if the review is in another language; it is used on the English stories and marked as translated. Our reply is only shown when you write one.</p>
+      <div id="review-list"></div>
+    </div>
+
+    <div>
+      <div class="section-header">
+        <h2>Stories <span id="story-count" style="color:#5b6270; font-size:14px;"></span></h2>
+        <div style="display:flex; gap:8px;">
+          <button class="ghost" id="download-all" onclick="downloadAll()">Download all (PNG)</button>
+          <button id="download-all-video" onclick="downloadAllVideos()">Make all videos</button>
+        </div>
+      </div>
+      <div id="previews" class="previews"></div>
+      <div id="status" class="status"></div>
+    </div>
+  </div>
+</div>
+
+<div id="export-host"></div>
+
+<script>
+const STORAGE_KEY = 'primeHayReviewStories.v5';
+
+const COPY = {
+  en: {
+    decimal: '.',
+    introEyebrow: 'Google reviews',
+    thanksNote: 'What our customers say',
+    // A 5.0 average means every review is five stars, so only claim that when it is true
+    introHeadline: (n, allFive) => allFive ? `${n} reviews. All five stars.` : `${n} reviews on Google.`,
+    introSub: 'Thank you to every rider who took the time to share their experience.',
+    onGoogle: 'on Google',
+    proof: 'Trusted by 450+ stables across Portugal & Spain',
+    googleReview: 'Google review',
+    customer: 'Prime Hay customer',
+    translated: 'Translated from the original review',
+    replyLabel: 'Our reply',
+    reply: name => `Thank you${name ? ', ' + name : ''}! That's exactly what we love to hear.`,
+    yourTurn: 'Your review',
+    ctaEyebrow: 'Already a customer?',
+    ctaHeadline: 'Share your experience on Google.',
+    ctaBody: 'Your review helps other horse owners choose the right hay. It only takes a minute, and we read every one.',
+    qrTitle: 'Scan to write a review',
+    tapTitle: 'Tap the link below',
+    tapSub: 'and leave your stars on Google',
+    qrSub: 'Point your camera at the code',
+    button: 'Tap the link ↓',
+    noLink: 'Add your Google review link',
+    team: 'the Prime Hay team',
+    tagline: 'It starts with real forage',
+  },
+  pt: {
+    decimal: ',',
+    introEyebrow: 'Avaliações Google',
+    thanksNote: 'O que dizem os nossos clientes',
+    introHeadline: (n, allFive) => allFive ? `${n} avaliações. Todas de 5 estrelas.` : `${n} avaliações no Google.`,
+    introSub: 'Obrigado a todos os cavaleiros que partilharam a sua experiência.',
+    onGoogle: 'no Google',
+    proof: 'A escolha de mais de 450 cavalariças em Portugal e Espanha',
+    googleReview: 'Avaliação Google',
+    customer: 'Cliente Prime Hay',
+    translated: 'Traduzido da avaliação original',
+    replyLabel: 'A nossa resposta',
+    reply: name => `Obrigado${name ? ', ' + name : ''}! É exatamente isto que gostamos de ouvir.`,
+    yourTurn: 'A sua avaliação',
+    ctaEyebrow: 'Já é cliente?',
+    ctaHeadline: 'Partilhe a sua experiência no Google.',
+    ctaBody: 'A sua avaliação ajuda outros donos de cavalos a escolher o feno certo. Demora só um minuto e lemos todas.',
+    qrTitle: 'Digitalize para avaliar',
+    tapTitle: 'Toque no link abaixo',
+    tapSub: 'e deixe as suas estrelas no Google',
+    qrSub: 'Aponte a câmara ao código',
+    button: 'Toque no link ↓',
+    noLink: 'Adicione o link de avaliação Google',
+    team: 'a equipa Prime Hay',
+    tagline: 'Tudo começa com forragem a sério',
+  },
+  nl: {
+    decimal: ',',
+    introEyebrow: 'Google-reviews',
+    thanksNote: 'Wat onze klanten zeggen',
+    introHeadline: (n, allFive) => allFive ? `${n} reviews. Allemaal 5 sterren.` : `${n} reviews op Google.`,
+    introSub: 'Dank aan iedere ruiter die de tijd nam om zijn ervaring te delen.',
+    onGoogle: 'op Google',
+    proof: 'Gekozen door 450+ stallen in Portugal en Spanje',
+    googleReview: 'Google-review',
+    customer: 'Klant van Prime Hay',
+    translated: 'Vertaald uit de oorspronkelijke review',
+    replyLabel: 'Ons antwoord',
+    reply: name => `Dank je wel${name ? ', ' + name : ''}! Precies wat we graag horen.`,
+    yourTurn: 'Jouw review',
+    ctaEyebrow: 'Al klant?',
+    ctaHeadline: 'Deel je ervaring op Google.',
+    ctaBody: 'Jouw review helpt andere paardeneigenaren het juiste hooi te kiezen. Het kost maar een minuut, en we lezen ze allemaal.',
+    qrTitle: 'Scan om een review te schrijven',
+    tapTitle: 'Tik op de link hieronder',
+    tapSub: 'en geef ons je sterren op Google',
+    qrSub: 'Richt je camera op de code',
+    button: 'Tik op de link ↓',
+    noLink: 'Voeg je Google-reviewlink toe',
+    team: 'het Prime Hay-team',
+    tagline: 'Alles begint met echt ruwvoer',
+  },
+  es: {
+    decimal: ',',
+    introEyebrow: 'Reseñas de Google',
+    thanksNote: 'Lo que dicen nuestros clientes',
+    introHeadline: (n, allFive) => allFive ? `${n} reseñas. Todas de 5 estrellas.` : `${n} reseñas en Google.`,
+    introSub: 'Gracias a cada jinete que se tomó el tiempo de compartir su experiencia.',
+    onGoogle: 'en Google',
+    proof: 'La elección de más de 450 cuadras en Portugal y España',
+    googleReview: 'Reseña de Google',
+    customer: 'Cliente de Prime Hay',
+    translated: 'Traducido de la reseña original',
+    replyLabel: 'Nuestra respuesta',
+    reply: name => `¡Gracias${name ? ', ' + name : ''}! Es justo lo que nos encanta oír.`,
+    yourTurn: 'Tu reseña',
+    ctaEyebrow: '¿Ya eres cliente?',
+    ctaHeadline: 'Comparte tu experiencia en Google.',
+    ctaBody: 'Tu reseña ayuda a otros propietarios de caballos a elegir el heno adecuado. Solo lleva un minuto, y las leemos todas.',
+    qrTitle: 'Escanea para escribir una reseña',
+    tapTitle: 'Toca el enlace de abajo',
+    tapSub: 'y deja tus estrellas en Google',
+    qrSub: 'Apunta la cámara al código',
+    button: 'Toca el enlace ↓',
+    noLink: 'Añade tu enlace de reseñas de Google',
+    team: 'el equipo de Prime Hay',
+    tagline: 'Todo empieza con forraje de verdad',
+  },
+};
+
+// Seeded with the review already used in the Pavo Standard campaign; add the rest from Google.
+const DEFAULTS = {
+  lang: 'en',
+  sender: '',
+  // A QR code can't be scanned on the phone showing the story, so it is only for printed versions
+  showQr: false,
+  photo: '',
+  profile: 'algarve',
+  // Per Google Maps, 28 Sep 2026
+  profiles: {
+    algarve: { name: 'Algarve', rating: '5,0', count: 9, reviewLink: 'https://maps.app.goo.gl/o8AdA9R7qwr576iJ6' },
+    ribatejo: { name: 'Ribatejo', rating: '5,0', count: 3, reviewLink: '' },
+  },
+  reviews: [
+    {
+      name: 'Maria José Ramos', stars: 5,
+      text: 'Adoram! Não saem de junto da rede onde é colocado o feno.',
+      translation: 'They love it! They never leave the hay net.',
+      reply: '', photo: '',
+    },
+  ],
+};
+
+// Official logo master files from the brandbook, inlined at startup so PNG export never depends on a network fetch
+const LOGOS = { cream: 'assets/logo-cream.png', forest: 'assets/logo-forest.png' };
+
+let state = load();
+
+function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (saved && Array.isArray(saved.reviews)) {
+      const merged = { ...structuredClone(DEFAULTS), ...saved };
+      if (!saved.profiles || !merged.profiles[merged.profile]) {
+        merged.profiles = structuredClone(DEFAULTS.profiles);
+        merged.profile = DEFAULTS.profile;
+      }
+      return merged;
+    }
+  } catch (e) {}
+  return structuredClone(DEFAULTS);
+}
+
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { showStatus('Photos are too large to remember after a reload; everything else is saved.', false); }
+}
+
+function save() {
+  state.lang = document.getElementById('lang').value;
+  state.sender = document.getElementById('sender').value;
+  state.showQr = document.getElementById('show-qr').checked;
+  const prof = state.profiles[state.profile];
+  prof.rating = document.getElementById('rating').value;
+  prof.count = document.getElementById('count').value;
+  prof.reviewLink = document.getElementById('review-link').value.trim();
+  persist();
+}
+
+function resetDefaults() {
+  if (!confirm('Reset all story content to the defaults?')) return;
+  state = structuredClone(DEFAULTS);
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  fillForm();
+  render();
+}
+
+function onLangChange() { save(); render(); }
+
+function onProfileChange() {
+  state.profile = document.getElementById('profile').value;
+  fillForm();
+  save();
+  render();
+}
+
+function profile() { return state.profiles[state.profile]; }
+
+// Downscale uploads so they stay small enough for localStorage and fast to export
+function readPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 1200;
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k);
+      c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      resolve(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function photoField(host, get, set) {
+  host.innerHTML = `<div class="thumb"></div><input type="file" accept="image/*"><button class="ghost" type="button">Remove</button>`;
+  const thumb = host.querySelector('.thumb');
+  const btn = host.querySelector('button');
+  const sync = () => {
+    thumb.style.backgroundImage = get() ? `url(${get()})` : '';
+    btn.style.display = get() ? '' : 'none';
+  };
+  host.querySelector('input').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    set(await readPhoto(f));
+    e.target.value = '';
+    sync(); persist(); render();
+  });
+  btn.addEventListener('click', () => { set(''); sync(); persist(); render(); });
+  sync();
+}
+
+function fillForm() {
+  document.getElementById('lang').value = state.lang;
+  document.getElementById('sender').value = state.sender;
+  document.getElementById('show-qr').checked = !!state.showQr;
+  document.getElementById('profile').value = state.profile;
+  document.getElementById('rating').value = profile().rating;
+  document.getElementById('count').value = profile().count;
+  document.getElementById('review-link').value = profile().reviewLink;
+  photoField(document.getElementById('main-photo-field'), () => state.photo, v => (state.photo = v));
+  renderReviewList();
+}
+
+function renderReviewList() {
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  state.reviews.forEach((r, i) => {
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `
+      <div class="top"><span>Review ${i + 1}</span><button class="ghost" data-remove>Remove</button></div>
+      <div class="row">
+        <input type="text" placeholder="Customer name" data-field="name">
+        <select data-field="stars">
+          <option value="5">★★★★★</option><option value="4">★★★★☆</option>
+        </select>
+      </div>
+      <textarea placeholder="Review text, exactly as on Google" data-field="text"></textarea>
+      <textarea placeholder="English translation (optional)" data-field="translation" style="min-height:52px"></textarea>
+      <textarea placeholder="Our reply (optional, shown only when filled in)" data-field="reply" style="min-height:52px"></textarea>
+      <label style="font-weight:400;color:#5b6270">Photo of their horse (optional)</label>
+      <div class="photo-field"></div>`;
+    ['name', 'stars', 'text', 'translation', 'reply'].forEach(f => {
+      item.querySelector(`[data-field="${f}"]`).value = f === 'stars' ? String(r.stars) : (r[f] || '');
+    });
+    item.querySelectorAll('[data-field]').forEach(el => {
+      el.addEventListener('input', () => {
+        const f = el.dataset.field;
+        state.reviews[i][f] = f === 'stars' ? Number(el.value) : el.value;
+        save(); render();
+      });
+    });
+    photoField(item.querySelector('.photo-field'), () => state.reviews[i].photo, v => (state.reviews[i].photo = v));
+    item.querySelector('[data-remove]').addEventListener('click', () => {
+      state.reviews.splice(i, 1);
+      save(); renderReviewList(); render();
+    });
+    list.appendChild(item);
+  });
+}
+
+function addReview() {
+  state.reviews.push({ name: '', stars: 5, text: '', translation: '', reply: '', photo: '' });
+  save(); renderReviewList(); render();
+  const areas = document.querySelectorAll('#review-list textarea[data-field="text"]');
+  areas[areas.length - 1].focus();
+}
+
+/* ---------- Story builders ---------- */
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function initials(name) {
+  return name.trim().split(/\s+/).filter(Boolean).map(p => p[0]).slice(0, 2).join('').toUpperCase() || '★';
+}
+
+// "Maria José Ramos" -> "Maria José", "Ana Silva" -> "Ana": Portuguese names often have a double first name
+function firstName(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return parts.slice(0, parts.length >= 3 ? 2 : 1).join(' ');
+}
+
+function rating(t) { return (profile().rating || '5,0').replace(/[.,]/, t.decimal); }
+
+function teamName(t) { return t.team.charAt(0).toUpperCase() + t.team.slice(1); }
+
+// Signed by the team; a name is only added when one is filled in
+function signature(t) { return state.sender ? `— ${esc(state.sender)} & ${esc(t.team)}` : `— ${esc(teamName(t))}`; }
+
+// Official master files only (brandbook: never retype the wordmark or redraw the emblem)
+function logo(kind) {
+  return `<img class="logo" data-layer="0" src="${LOGOS[kind]}" alt="Prime Hay">`;
+}
+
+// The faint wheat-stalk line drawing from the social templates
+function wheat(color) {
+  let d = 'M130 0V760';
+  for (let y = 60; y <= 560; y += 70) d += ` M130 ${y + 70}C95 ${y + 40} 45 ${y + 20} 10 ${y}M130 ${y + 70}C165 ${y + 40} 215 ${y + 20} 250 ${y}`;
+  return `<svg class="wheat" data-layer="0" viewBox="0 0 260 760" fill="none"><path d="${d}" stroke="${color}" stroke-width="5" stroke-linecap="round"/></svg>`;
+}
+
+function chrome(t, dark, pill) {
+  return `${wheat(dark ? 'rgba(107,138,113,.28)' : 'rgba(17,54,2,.07)')}
+    ${logo(dark ? 'cream' : 'forest')}
+    <div class="tag-pill" data-layer="0">${esc(pill)}</div>
+    <div class="tagline" data-layer="0">${esc(t.tagline)}</div>`;
+}
+
+// Elements carry data-layer so the video export can animate them in one group at a time
+function buildIntro(t, video) {
+  const el = document.createElement('div');
+  el.className = 'story s-intro' + (state.photo && !video ? ' has-photo' : '') + (video ? ' video-mode' : '');
+  const compact = state.photo || video;
+  el.innerHTML = `
+    ${state.photo && !video ? `<div class="photo bleed" style="background-image:url(${state.photo})"></div>` : ''}
+    ${chrome(t, true, t.introEyebrow)}
+    <div class="col">
+      <div data-layer="1">
+        <div class="eyebrow">${esc(t.thanksNote)}</div>
+        <div class="headline">${esc(t.introHeadline(profile().count || '', parseFloat(String(profile().rating).replace(',', '.')) >= 5))}</div>
+        <div class="sub">${esc(t.introSub)}</div>
+      </div>
+      ${compact
+        ? `<div class="score-row" data-layer="2"><span class="score-inline">${esc(rating(t))}</span><span class="stars">★★★★★</span><span>${esc(t.onGoogle)}</span></div>`
+        : `<div data-layer="2">
+        <div class="score">${esc(rating(t))}</div>
+        <div class="score-row"><span class="stars">★★★★★</span><span>${esc(t.onGoogle)}</span></div>
+        <div class="proof">${esc(t.proof)}</div>
+      </div>`}
+      <div class="signed" data-layer="3">${signature(t)}</div>
+    </div>`;
+  return el;
+}
+
+function buildReview(t, r, video) {
+  const el = document.createElement('div');
+  el.className = 'story s-review' + (video ? ' video-mode' : '');
+  const useTranslation = state.lang === 'en' && r.translation && r.translation.trim();
+  const quote = useTranslation ? r.translation : r.text;
+  const stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
+  // Our reply is optional and only shown when one is written
+  const reply = r.reply && r.reply.trim();
+  el.innerHTML = `
+    ${chrome(t, true, t.googleReview)}
+    <div class="col">
+      <div class="qbox" data-layer="1">
+        <div class="qmark">“</div>
+        <div class="stars review-stars">${stars}</div>
+        <div class="quote" data-fit>${esc(quote || '…')}</div>
+        ${useTranslation ? `<div class="translated">${esc(t.translated)}</div>` : ''}
+      </div>
+      <div class="who" data-layer="2">
+        <div class="avatar" style="${r.photo ? `background-image:url(${r.photo})` : ''}">${r.photo ? '' : esc(initials(r.name))}</div>
+        <div>
+          <div class="name">${esc(r.name || '—')}</div>
+          <div class="meta-line">${esc(t.customer)}</div>
+        </div>
+      </div>
+      ${reply ? `<div class="reply" data-layer="3">
+        <div class="label">${esc(t.replyLabel)}</div>
+        <div class="text">${esc(reply)}</div>
+        <div class="by">— ${esc(state.sender || teamName(t))}</div>
+      </div>` : ''}
+    </div>`;
+  return el;
+}
+
+function buildCta(t, video) {
+  const el = document.createElement('div');
+  el.className = 'story s-cta' + (video ? ' video-mode' : '');
+  const link = profile().reviewLink;
+  el.innerHTML = `
+    ${chrome(t, !!video, t.yourTurn)}
+    <div class="col">
+      <div class="from" data-layer="1">
+        ${state.photo ? `<div class="photo" style="background-image:url(${state.photo})"></div>` : ''}
+        <div class="eyebrow">${esc(t.ctaEyebrow)}</div>
+      </div>
+      <div class="headline" data-layer="1">${esc(t.ctaHeadline)}</div>
+      <div class="body" data-layer="2">${esc(t.ctaBody)}</div>
+      ${state.showQr ? `<div class="qr-card" data-layer="3">
+        ${link ? `<div class="qr">${qrSvg(link)}</div>` : `<div class="qr-empty">${esc(t.noLink)}</div>`}
+        <div>
+          <div class="qr-title">${esc(t.qrTitle)}</div>
+          <div class="qr-sub"><span class="stars">★★★★★</span>${esc(t.qrSub)}</div>
+        </div>
+      </div>` : `<div class="tap" data-layer="3">
+        <div class="tap-title">${esc(t.tapTitle)}</div>
+        <div class="tap-sub">${esc(t.tapSub)}</div>
+      </div>
+      <div class="arrow" data-layer="4" data-bounce><svg viewBox="0 0 24 24" fill="none" stroke="#0C2A02" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M5 12l7 7 7-7"/></svg></div>
+      <div class="sticker-space"></div>`}
+      <div class="signed" data-layer="5">${signature(t)}</div>
+    </div>`;
+  return el;
+}
+
+function qrSvg(text) {
+  if (typeof qrcode !== 'function') return '';
+  const qr = qrcode(0, 'M');
+  qr.addData(text);
+  qr.make();
+  const n = qr.getModuleCount();
+  let path = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) path += `M${c},${r}h1v1h-1z`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges"><path d="${path}" fill="#113602"/></svg>`;
+}
+
+// Shrink each quote until it fits the space left between the quote mark and the name
+function fitQuotes(root) {
+  root.querySelectorAll('[data-fit]').forEach(q => {
+    const box = q.parentElement;
+    let size = 84;
+    q.style.fontSize = size + 'px';
+    while (size > 40 && box.scrollHeight > box.clientHeight) {
+      size -= 4;
+      q.style.fontSize = size + 'px';
+    }
+  });
+}
+
+function buildAll(video = false) {
+  const t = COPY[state.lang] || COPY.en;
+  const reviews = state.reviews.filter(r => r.text.trim() || r.name.trim());
+  const stories = [{ label: 'Thank-you intro', kind: 'intro', seconds: 7, el: buildIntro(t, video) }];
+  reviews.forEach(r => {
+    const words = ((state.lang === 'en' && r.translation) || r.text).split(/\s+/).length;
+    stories.push({ label: `Review · ${r.name || 'unnamed'}`, kind: 'review', seconds: Math.round(7 + Math.min(8, words * 0.3)), el: buildReview(t, r, video) });
+  });
+  stories.push({ label: 'Ask for a review', kind: 'cta', seconds: 10, el: buildCta(t, video) });
+  return stories;
+}
+
+let current = [];
+
+function render() {
+  const wrap = document.getElementById('previews');
+  wrap.innerHTML = '';
+  current = buildAll();
+  current.forEach((s, i) => {
+    const p = document.createElement('div');
+    p.className = 'preview';
+    const frame = document.createElement('div');
+    frame.className = 'frame';
+    frame.appendChild(s.el);
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.innerHTML = `<span>${i + 1}. ${esc(s.label)}</span>`;
+    const btns = document.createElement('div');
+    btns.className = 'btns';
+    const btn = document.createElement('button');
+    btn.className = 'ghost';
+    btn.textContent = 'PNG';
+    btn.onclick = () => downloadOne(i);
+    const vbtn = document.createElement('button');
+    vbtn.className = 'ghost';
+    vbtn.textContent = 'Video';
+    vbtn.onclick = () => makeVideo(i);
+    btns.append(btn, vbtn);
+    meta.appendChild(btns);
+    p.append(frame, meta);
+    wrap.appendChild(p);
+  });
+  fitQuotes(wrap);
+  document.getElementById('story-count').textContent = `(${current.length})`;
+}
+
+/* ---------- Export ---------- */
+
+// Webfonts are inlined once and reused for every story in the batch
+let fontEmbedCSS = null;
+
+async function toPng(story) {
+  const host = document.getElementById('export-host');
+  const clone = story.cloneNode(true);
+  clone.style.transform = 'none';
+  host.appendChild(clone);
+  try {
+    if (fontEmbedCSS === null) fontEmbedCSS = await htmlToImage.getFontEmbedCSS(clone);
+    return await htmlToImage.toPng(clone, { width: 1080, height: 1920, pixelRatio: 1, fontEmbedCSS });
+  } finally {
+    host.removeChild(clone);
+  }
+}
+
+function fileName(i) {
+  return `prime-hay-story-${state.profile}-${state.lang}-${String(i + 1).padStart(2, '0')}.png`;
+}
+
+function triggerDownload(url, name) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function showStatus(msg, ok = true) {
+  const status = document.getElementById('status');
+  status.textContent = msg;
+  status.style.background = ok ? '#e8f5e9' : '#fdecea';
+  status.style.color = ok ? '#2e7d32' : '#b23a2e';
+  status.style.display = 'block';
+  clearTimeout(showStatus.t);
+  showStatus.t = setTimeout(() => (status.style.display = 'none'), 4000);
+}
+
+async function downloadOne(i) {
+  try {
+    triggerDownload(await toPng(current[i].el), fileName(i));
+  } catch (e) {
+    showStatus('Export failed: ' + e.message, false);
+  }
+}
+
+async function downloadAll() {
+  const btn = document.getElementById('download-all');
+  btn.disabled = true;
+  try {
+    for (let i = 0; i < current.length; i++) {
+      btn.textContent = `Exporting ${i + 1}/${current.length}…`;
+      triggerDownload(await toPng(current[i].el), fileName(i));
+    }
+    showStatus(`✓ ${current.length} stories downloaded (1080×1920)`);
+  } catch (e) {
+    showStatus('Export failed: ' + e.message, false);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Download all (PNG)';
+  }
+}
+
+/* ---------- Video stories ----------
+   Each story is rendered as transparent PNG layers (one per data-layer group),
+   then composited on a canvas over the background footage and recorded with MediaRecorder. */
+
+const W = 1080, H = 1920, FPS = 30;
+let bgVideoUrl = '';
+
+function onVideoChange(input) {
+  const f = input.files[0];
+  if (!f) return;
+  if (bgVideoUrl) URL.revokeObjectURL(bgVideoUrl);
+  bgVideoUrl = URL.createObjectURL(f);
+  document.getElementById('bg-video-clear').style.display = '';
+}
+
+function clearVideo() {
+  if (bgVideoUrl) URL.revokeObjectURL(bgVideoUrl);
+  bgVideoUrl = '';
+  document.getElementById('bg-video').value = '';
+  document.getElementById('bg-video-clear').style.display = 'none';
+}
+
+// Instagram wants MP4; current Chrome and Safari can record it, older browsers fall back to WebM
+function pickMime() {
+  const types = ['video/mp4;codecs=avc1.640028', 'video/mp4;codecs=avc1.42E01E', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  return types.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || '';
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = src; });
+}
+
+async function renderLayers(i) {
+  const story = buildAll(true)[i];
+  const host = document.getElementById('export-host');
+  const node = story.el;
+  host.appendChild(node);
+  try {
+    fitQuotes(node);
+    if (fontEmbedCSS === null) fontEmbedCSS = await htmlToImage.getFontEmbedCSS(node);
+    const parts = [...node.querySelectorAll('[data-layer]')];
+    const ids = [...new Set(parts.map(el => el.dataset.layer))].sort((a, b) => a - b);
+    const layers = [];
+    for (const id of ids) {
+      parts.forEach(el => { el.style.visibility = el.dataset.layer === id ? 'visible' : 'hidden'; });
+      const url = await htmlToImage.toPng(node, { width: W, height: H, pixelRatio: 1, fontEmbedCSS });
+      layers.push(await loadImage(url));
+    }
+    const bouncer = node.querySelector('[data-bounce]');
+    const bounceLayer = bouncer ? ids.indexOf(bouncer.dataset.layer) : -1;
+    return { layers, seconds: story.seconds, kind: story.kind, index: i, bounceLayer };
+  } finally {
+    host.removeChild(node);
+  }
+}
+
+function drawCover(ctx, video, zoom) {
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (!vw || !vh) return;
+  const k = Math.max(W / vw, H / vh) * zoom;
+  const dw = vw * k, dh = vh * k;
+  ctx.drawImage(video, (W - dw) / 2, (H - dh) / 2, dw, dh);
+}
+
+// Fallback when no footage is uploaded: slow light drifting over forest, with floating hay dust
+const SPECKS = Array.from({ length: 70 }, (_, n) => {
+  const r = x => (Math.sin(n * 127.1 + x * 311.7) * 43758.5453) % 1;
+  return { x: Math.abs(r(1)) * W, y: Math.abs(r(2)) * H, s: 2 + Math.abs(r(3)) * 5, v: 12 + Math.abs(r(4)) * 30, p: Math.abs(r(5)) * 6.28 };
+});
+
+// Real Prime Hay bale photos (the same textures as the premium-range stories)
+const TEXTURES = ['assets/hay-meadow.jpg', 'assets/hay-top.jpg', 'assets/hay-side.jpg'].map(src => {
+  const img = new Image();
+  img.src = src;
+  return img;
+});
+
+// Default moving background: a slow drift across a close-up of the hay, softened so text stays the hero
+function drawHay(ctx, t, job) {
+  const img = TEXTURES[job.index % TEXTURES.length];
+  if (!img.complete || !img.naturalWidth) return drawFallback(ctx, t);
+  const k = (H / img.naturalHeight) * 1.1;
+  const dw = img.naturalWidth * k, dh = img.naturalHeight * k;
+  const p = t / job.seconds;
+  const dir = job.index % 2 ? -1 : 1;
+  const x = -(dw - W) * (dir > 0 ? p : 1 - p) * 0.6 - (dw - W) * 0.2;
+  const zoom = 1 + 0.06 * p;
+  ctx.fillStyle = '#0C2A02';
+  ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(W / 2, H / 2);
+  ctx.scale(zoom, zoom);
+  ctx.translate(-W / 2, -H / 2);
+  ctx.filter = 'blur(5px) saturate(0.85)';
+  ctx.drawImage(img, x, (H - dh) / 2, dw, dh);
+  ctx.restore();
+  ctx.filter = 'none';
+}
+
+function drawFallback(ctx, t) {
+  ctx.fillStyle = '#0C2A02';
+  ctx.fillRect(0, 0, W, H);
+  const glow = (x, y, r, color) => {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, color);
+    g.addColorStop(1, 'rgba(12,42,2,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  };
+  glow(540 + 320 * Math.sin(t * 0.35), 700 + 260 * Math.cos(t * 0.27), 1000, 'rgba(216,192,129,.22)');
+  glow(300 + 200 * Math.cos(t * 0.22), 1500 + 200 * Math.sin(t * 0.31), 900, 'rgba(107,138,113,.35)');
+  ctx.fillStyle = 'rgba(216,192,129,.35)';
+  SPECKS.forEach(p => {
+    const y = ((p.y - t * p.v) % H + H) % H;
+    const x = p.x + 18 * Math.sin(t * 0.8 + p.p);
+    ctx.beginPath();
+    ctx.ellipse(x, y, p.s, p.s * 0.45, p.p + t * 0.3, 0, 6.283);
+    ctx.fill();
+  });
+}
+
+function drawScrim(ctx, kind, hasVideo) {
+  // Darker behind the text blocks so any footage stays readable
+  const a = hasVideo ? 1 : 0.35;
+  if (hasVideo) {
+    // Forest vignette, like the premium stories' radial green
+    const v = ctx.createRadialGradient(W / 2, H * 0.45, 200, W / 2, H * 0.45, H * 0.75);
+    v.addColorStop(0, 'rgba(17,54,2,0.15)');
+    v.addColorStop(1, 'rgba(12,42,2,0.7)');
+    ctx.fillStyle = v;
+    ctx.fillRect(0, 0, W, H);
+  }
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, `rgba(12,42,2,${0.75 * a})`);
+  g.addColorStop(0.3, `rgba(12,42,2,${(kind === 'intro' ? 0.5 : 0.62) * a})`);
+  g.addColorStop(0.65, `rgba(12,42,2,${0.66 * a})`);
+  g.addColorStop(1, `rgba(12,42,2,${0.9 * a})`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
+const easeOut = p => 1 - Math.pow(1 - p, 3);
+
+function drawFrame(ctx, t, job, video) {
+  if (video) drawCover(ctx, video, 1.04 + 0.08 * (t / job.seconds));
+  else drawHay(ctx, t, job);
+  drawScrim(ctx, job.kind, true);
+  job.layers.forEach((img, k) => {
+    const start = 0.2 + k * 0.6;
+    const p = easeOut(Math.min(1, Math.max(0, (t - start) / 0.9)));
+    if (p <= 0) return;
+    // The arrow keeps nudging down towards the link sticker once it has landed
+    const bounce = k === job.bounceLayer && t > start + 0.9 ? Math.abs(Math.sin((t - start - 0.9) * 3)) * 22 : 0;
+    ctx.globalAlpha = p;
+    ctx.drawImage(img, 0, (1 - p) * 60 + bounce);
+    ctx.globalAlpha = 1;
+  });
+}
+
+async function startVideo(i) {
+  if (!bgVideoUrl) return null;
+  const v = document.createElement('video');
+  v.src = bgVideoUrl;
+  v.muted = true;
+  v.loop = true;
+  v.playsInline = true;
+  await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = () => rej(new Error('This video format cannot be played in this browser')); });
+  // Each story starts at a different point in the clip so they don't all look the same
+  const span = Math.max(0, v.duration - 1);
+  v.currentTime = span ? (i * 4.7) % span : 0;
+  await new Promise(res => { v.onseeked = res; setTimeout(res, 1500); });
+  await v.play();
+  return v;
+}
+
+async function recordStory(i, onProgress) {
+  const mime = pickMime();
+  if (!mime || !HTMLCanvasElement.prototype.captureStream) throw new Error('This browser cannot record video; use the latest Chrome or Safari');
+  const job = await renderLayers(i);
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const video = await startVideo(i);
+  drawFrame(ctx, 0, job, video);
+  const rec = new MediaRecorder(canvas.captureStream(FPS), { mimeType: mime, videoBitsPerSecond: 10_000_000 });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  const stopped = new Promise(res => (rec.onstop = res));
+  rec.start(250);
+  const t0 = performance.now();
+  await new Promise(res => {
+    const tick = () => {
+      const t = (performance.now() - t0) / 1000;
+      drawFrame(ctx, Math.min(t, job.seconds), job, video);
+      onProgress(Math.min(1, t / job.seconds));
+      if (t >= job.seconds) res();
+      else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  rec.stop();
+  await stopped;
+  if (video) video.pause();
+  return { blob: new Blob(chunks, { type: mime.split(';')[0] }), ext: mime.startsWith('video/mp4') ? 'mp4' : 'webm' };
+}
+
+// Frame-by-frame hooks so render-reviews.mjs can encode H.264 with ffmpeg, like stories/render.mjs does
+const offline = { job: null, ctx: null };
+window.__reviewStoryCount = () => current.length;
+window.__reviewPrepare = async i => {
+  offline.job = await renderLayers(i);
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  offline.ctx = c.getContext('2d');
+  await Promise.all(TEXTURES.map(img => img.decode().catch(() => {})));
+  return offline.job.seconds;
+};
+window.__reviewFrame = t => {
+  drawFrame(offline.ctx, t, offline.job, null);
+  return offline.ctx.canvas.toDataURL('image/jpeg', 0.92);
+};
+
+async function makeVideo(i) {
+  const frame = document.querySelectorAll('#previews .frame')[i];
+  const bar = document.createElement('div');
+  bar.className = 'progress';
+  frame.appendChild(bar);
+  try {
+    const { blob, ext } = await recordStory(i, p => (bar.style.width = (p * 100).toFixed(1) + '%'));
+    const url = URL.createObjectURL(blob);
+    frame.querySelectorAll('video').forEach(v => v.remove());
+    const player = document.createElement('video');
+    Object.assign(player, { src: url, muted: true, loop: true, autoplay: true, playsInline: true });
+    frame.appendChild(player);
+    triggerDownload(url, fileName(i).replace(/\.png$/, '.' + ext));
+    if (!pickMime().includes('avc1')) showStatus('This browser cannot record H.264, which Instagram expects. For posting, record in the latest Chrome or Safari.', false);
+    return true;
+  } catch (e) {
+    showStatus('Video failed: ' + e.message, false);
+    return false;
+  } finally {
+    bar.remove();
+  }
+}
+
+async function downloadAllVideos() {
+  const btn = document.getElementById('download-all-video');
+  btn.disabled = true;
+  try {
+    for (let i = 0; i < current.length; i++) {
+      btn.textContent = `Recording ${i + 1}/${current.length}…`;
+      if (!(await makeVideo(i))) return;
+    }
+    showStatus(`✓ ${current.length} video stories downloaded (1080×1920)`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Make all videos';
+  }
+}
+
+async function inlineLogos() {
+  await Promise.all(Object.entries(LOGOS).map(async ([k, url]) => {
+    try {
+      const blob = await (await fetch(url)).blob();
+      LOGOS[k] = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
+    } catch (e) { /* keep the relative path */ }
+  }));
+}
+
+window.addEventListener('load', async () => {
+  fillForm();
+  render();
+  await inlineLogos();
+  // Re-render once logos are inlined and webfonts have arrived, so quotes are fitted with the real font
+  if (document.fonts && document.fonts.ready) await document.fonts.ready;
+  render();
+});
+</script>
+
+</body>
+</html>
